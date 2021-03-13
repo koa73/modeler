@@ -11,7 +11,7 @@ if (len(sys.argv) < 3):
     print("Argument not found ")
     exit(0)
 
-source_path = '/models/archive/complex/1/'
+source_path = '/models/archive/complex/2/'
 #source_path = '/models/archive/models/gpu/'
 #source_path = '/data/models/archive/complex/'
 comment_in_log = "UP complex leve 2 check"
@@ -40,7 +40,7 @@ def check_models(file_list):
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, str(file_list), comment_in_log, False, "check_complex")
 
 #15, 111
-di = d.create_dictionary(1, 32)
+di = d.create_dictionary(1, 20)
 
 i, start, offset = 0, int(sys.argv[1]), int(sys.argv[2])
 
@@ -49,7 +49,6 @@ for key in di:
     if i <= start:
         continue
     else:
-        # print(d[key])
         check_models(di[key])
     if i == start + offset:
         break

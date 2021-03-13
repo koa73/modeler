@@ -11,10 +11,10 @@ print("Start composite model making ....")
 
 model_base_name = "weights_b25_150_"
 source_path = '/models/archive/models/gpu/'
-model_archive_path = '/models/archive/complex/1/'
+model_archive_path = '/models/archive/complex/3/'
 
 # Сборка модели из листа, запись лога и сохранение моделей в dst каталог
-def model_complex_builser(file_list, prefix):
+def model_complex_builder(file_list, prefix):
 
     models = []
     for i in range(len(file_list)):
@@ -46,42 +46,29 @@ def model_complex_builser(file_list, prefix):
     y_none_pred = model.predict([X_none, X_none, X_none])
     y_down_pred = model.predict([X_down, X_down, X_down])
 
-    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level.", False, "complex/1/checker")
-
-array = [['weights_b25_150_18', 'weights_b25_150_43', 'weights_b25_150_74'],
-             ['weights_b25_150_22', 'weights_b25_150_71', 'weights_b25_150_92'],
-             ['weights_b25_150_23', 'weights_b25_150_56', 'weights_b25_150_85'],
-             ['weights_b25_150_27', 'weights_b25_150_71', 'weights_b25_150_75'],
-             ['weights_b25_150_28', 'weights_b25_150_28', 'weights_b25_150_56'],
-             ['weights_b25_150_28', 'weights_b25_150_43', 'weights_b25_150_74'],
-             ['weights_b25_150_28', 'weights_b25_150_52', 'weights_b25_150_77'],
-             ['weights_b25_150_28', 'weights_b25_150_56', 'weights_b25_150_85'],
-             ['weights_b25_150_28', 'weights_b25_150_57', 'weights_b25_150_86'],
-             ['weights_b25_150_28', 'weights_b25_150_63', 'weights_b25_150_77'],
-             ['weights_b25_150_28', 'weights_b25_150_69', 'weights_b25_150_77'],
-             ['weights_b25_150_28', 'weights_b25_150_74', 'weights_b25_150_102'],
-             ['weights_b25_150_41', 'weights_b25_150_71', 'weights_b25_150_77'],
-             ['weights_b25_150_42', 'weights_b25_150_52', 'weights_b25_150_77'],
-             ['weights_b25_150_43', 'weights_b25_150_57', 'weights_b25_150_109'],
-             ['weights_b25_150_43', 'weights_b25_150_67', 'weights_b25_150_85'],
-             ['weights_b25_150_43', 'weights_b25_150_71', 'weights_b25_150_84'],
-             ['weights_b25_150_43', 'weights_b25_150_74', 'weights_b25_150_85'],
-             ['weights_b25_150_45', 'weights_b25_150_71', 'weights_b25_150_92'],
-             ['weights_b25_150_46', 'weights_b25_150_63', 'weights_b25_150_83'],
-             ['weights_b25_150_46', 'weights_b25_150_71', 'weights_b25_150_99'],
-             ['weights_b25_150_50', 'weights_b25_150_71', 'weights_b25_150_92'],
-             ['weights_b25_150_51', 'weights_b25_150_63', 'weights_b25_150_81'],
-             ['weights_b25_150_54', 'weights_b25_150_74', 'weights_b25_150_109'],
-             ['weights_b25_150_58', 'weights_b25_150_75', 'weights_b25_150_98'],
-             ['weights_b25_150_63', 'weights_b25_150_75', 'weights_b25_150_85'],
-             ['weights_b25_150_63', 'weights_b25_150_85', 'weights_b25_150_105'],
-             ['weights_b25_150_71', 'weights_b25_150_78', 'weights_b25_150_85'],
-             ['weights_b25_150_71', 'weights_b25_150_80', 'weights_b25_150_85'],
-             ['weights_b25_150_71', 'weights_b25_150_85', 'weights_b25_150_105'],
-             ['weights_b25_150_74', 'weights_b25_150_75', 'weights_b25_150_85']]
+    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.", False, "complex/3/checker")
+# список моделей для сборки
+array = [['weights_b25_150_16', 'weights_b25_150_92', 'weights_b25_150_103'],
+['weights_b25_150_25', 'weights_b25_150_30', 'weights_b25_150_86'],
+['weights_b25_150_25', 'weights_b25_150_85', 'weights_b25_150_86'],
+['weights_b25_150_26', 'weights_b25_150_30', 'weights_b25_150_86'],
+['weights_b25_150_28', 'weights_b25_150_30', 'weights_b25_150_86'],
+['weights_b25_150_28', 'weights_b25_150_83', 'weights_b25_150_87'],
+['weights_b25_150_28', 'weights_b25_150_85', 'weights_b25_150_86'],
+['weights_b25_150_30', 'weights_b25_150_31', 'weights_b25_150_86'],
+['weights_b25_150_30', 'weights_b25_150_83', 'weights_b25_150_89'],
+['weights_b25_150_30', 'weights_b25_150_85', 'weights_b25_150_86'],
+['weights_b25_150_30', 'weights_b25_150_86', 'weights_b25_150_104'],
+['weights_b25_150_31', 'weights_b25_150_85', 'weights_b25_150_92'],
+['weights_b25_150_31', 'weights_b25_150_92', 'weights_b25_150_95'],
+['weights_b25_150_41', 'weights_b25_150_86', 'weights_b25_150_88'],
+['weights_b25_150_43', 'weights_b25_150_86', 'weights_b25_150_96'],
+['weights_b25_150_60', 'weights_b25_150_86', 'weights_b25_150_86'],
+['weights_b25_150_67', 'weights_b25_150_86', 'weights_b25_150_86'],
+['weights_b25_150_72', 'weights_b25_150_86', 'weights_b25_150_86'],
+['weights_b25_150_74', 'weights_b25_150_86', 'weights_b25_150_86']]
 
 i = 0
 for file_list in array:
-    i+=1
-    #print(str(i)+"\t"+str(file_list))
-    model_complex_builser(file_list, str(i))
+    i += 1
+    model_complex_builder(file_list, str(i))

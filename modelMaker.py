@@ -18,6 +18,11 @@ def create_dictionary(first, last):
     for a in arr:
         for b in arr:
             for c in arr:
+                # Remove any doubles
+                #if ((a == b) or (b == c) or (a == c)):
+                #    continue
+                if ((a == b == c)):
+                    continue
                 d[str(sorted([a, b, c]))] = [pat + str(c), pat + str(b), pat + str(a)]
     return d
 
@@ -95,7 +100,7 @@ class ModelMaker:
     def get_file_dir(self):
         return self.__fileDir
 
-    def save_conf(self, model, prefix, path="/models/archive/tmp/weights_"):
+    def save_conf(self, model, prefix, path="/models/tmp/weights_"):
         """
         :param prefix:
         :param path:
@@ -138,7 +143,7 @@ class ModelMaker:
         for i in range(np_array.shape[0]):
             winner = np.argwhere(np_array[i] == np.amax(np_array[i]))
             if (winner.size > 1):
-                result.append([0., 1., 0])
+                result.append([0., 1., 0.])
             else:
                 z = np.zeros(3, dtype=float)
                 z[winner[0][0]] = 1.
