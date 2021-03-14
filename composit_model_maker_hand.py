@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 import modelMaker as d
-import Amplifier as m
+import Bynary as b
 import uuid
 
 data = d.ModelMaker()
@@ -11,16 +11,14 @@ data = d.ModelMaker()
 print("Start composite model making ....")
 
 model_base_name = "weights_b25_150_"
-source_path = '/models/archive/models/gpu/'
-#source_path = '/models/archive/complex/tmp/'
+#source_path = '/models/archive/models/gpu/'
+source_path = '/models/archive/complex/1/'
 out_log = "complex/tmp/checker"
 model_archive_path = '/models/archive/complex/best/'
 
 
 # Сборка модели из листа, запись лога и сохранение моделей в dst каталог
 def model_complex_builder(file_list, prefix):
-
-    amplifier = m.Amplifier()
     models = []
     for i in range(len(file_list)):
         # Load models
@@ -29,13 +27,19 @@ def model_complex_builder(file_list, prefix):
         models.append(model_tmp)
 
     print("------------------- Build model----------")
-    model_layers = []
+    in_layers = []
+    out_layers = []
+    binary_layer = []
     input_layer_1 = tf.keras.layers.Input(shape=(24,), name=str(uuid.uuid4()))
+
     for i in range(len(models)):
-        model_layers.append(models[i](input_layer_1))
-    output = tf.keras.layers.add(model_layers, name=str(uuid.uuid4()))
-    output_2 = amplifier(output)
-    model = tf.keras.models.Model(inputs=input_layer_1, outputs=[output_2])
+        in_layers.append(models[i](input_layer_1))
+        # idx of output which must be amplified 0-UP, 1-NONE, 2-DOWN
+        binary_layer.append(b.Binary(name=str(uuid.uuid4()), idx=1))
+        out_layers.append(binary_layer[i](in_layers[i]))
+
+    output = tf.keras.layers.add(out_layers, name=str(uuid.uuid4()))
+    model = tf.keras.models.Model(inputs=input_layer_1, outputs=[output])
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     #
     print(model.summary())
@@ -52,7 +56,10 @@ def model_complex_builder(file_list, prefix):
     y_none_pred = model.predict([X_none, X_none, X_none])
     y_down_pred = model.predict([X_down, X_down, X_down])
 
-    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.", False, out_log)
+    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.",
+                            False, out_log)
 
-file_list = ['weights_b25_150_30', 'weights_b25_150_86', 'weights_b25_150_104', 'weights_b25_150_16', 'weights_b25_150_103']
-model_complex_builder(file_list, '07')
+
+file_list = ["weights_b25_150_19", "weights_b25_150_22", "weights_b25_150_10", "weights_b25_150_16", "weights_b25_150_3", "weights_b25_150_8"]
+# file_list = ['weights_b25_150_30', 'weights_b25_150_86', 'weights_b25_150_104', 'weights_b25_150_16', 'weights_b25_150_103']
+model_complex_builder(file_list, '08')

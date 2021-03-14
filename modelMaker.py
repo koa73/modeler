@@ -8,23 +8,33 @@ from shutil import copyfile
 import tensorflow as tf
 
 
-def create_dictionary(first, last):
+# Create list of file names uniq variants
+def create_uniq_names(first, last, offset=0, batch_size=0, pat = 'weights_b25_150_'):
     arr = []
     for i in range(first, last):
         arr.append(i)
-
     d = {}
-    pat = 'weights_b25_150_'
+
     for a in arr:
         for b in arr:
             for c in arr:
-                # Remove any doubles
-                #if ((a == b) or (b == c) or (a == c)):
-                #    continue
-                if ((a == b == c)):
+                # remove variants with the same values
+                if a == b == c:
                     continue
-                d[str(sorted([a, b, c]))] = [pat + str(c), pat + str(b), pat + str(a)]
-    return d
+                else:
+                    d[str(sorted([a, b, c]))] = [pat + str(c), pat + str(b), pat + str(a)]
+    arr = []
+    idx = 0
+    size = offset + batch_size
+    for item in list(d.values()):
+        idx += 1
+        if idx <= offset:
+            continue
+
+        arr.append(item)
+        if (batch_size > 0) and (idx == size):
+            break
+    return arr
 
 
 def write_log(name, data_list):
@@ -182,8 +192,11 @@ class ModelMaker:
               "\t Sensitive : " + "%.4f" % k1 + " %\t Relevant_Error : " + "%.4f" % k2 + " %\n")
 
         if need_archive:
+
             self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
+
         else:
+
             self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
 
         # return up_+abs(down), all_errors, "%.4f" % k1, "%.4f" % k2

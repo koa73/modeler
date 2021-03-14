@@ -11,10 +11,10 @@ if (len(sys.argv) < 3):
     print("Argument not found ")
     exit(0)
 
-source_path = '/models/archive/complex/2/'
+source_path = '/models/archive/complex/1/'
 #source_path = '/models/archive/models/gpu/'
 #source_path = '/data/models/archive/complex/'
-comment_in_log = "UP complex leve 2 check"
+comment_in_log = "UP complex leve 3 check zero"
 
 # Load test data
 X_down, y_down = data.get_check_data('test', 'DOWN_b38', '2D')
@@ -35,14 +35,17 @@ def check_models(file_list):
         y_none_pred = ((model.predict([X_none])) + y_none_pred)
         y_down_pred = ((model.predict([X_down])) + y_down_pred)
 
-    # input(y_up_pred.shape)
-    # data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, "", "", False)
+
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, str(file_list), comment_in_log, False, "check_complex")
 
-#15, 111
-di = d.create_dictionary(1, 20)
+array = d.create_uniq_names(1, 32, offset=int(sys.argv[1]), batch_size=int(sys.argv[2]))
 
-i, start, offset = 0, int(sys.argv[1]), int(sys.argv[2])
+for file_list in array:
+    print(file_list)
+
+'''
+
+i, start, offset = 0, int(sys.argv[1]), )
 
 for key in di:
     i += 1
@@ -52,3 +55,4 @@ for key in di:
         check_models(di[key])
     if i == start + offset:
         break
+'''

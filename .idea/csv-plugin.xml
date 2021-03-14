@@ -3,6 +3,27 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/Amplifier.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Binary_old.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/OneHotLayer.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/checker.sh">
           <value>
             <Attribute>
@@ -115,6 +136,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/logs/cheker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/compare.csv">
           <value>
             <Attribute>
@@ -200,6 +228,13 @@
           </value>
         </entry>
         <entry key="/save_predict_2_file.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/test_11.py">
           <value>
             <Attribute>
               <option name="separator" value="," />
