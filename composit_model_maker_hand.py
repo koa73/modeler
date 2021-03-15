@@ -35,7 +35,7 @@ def model_complex_builder(file_list, prefix):
     for i in range(len(models)):
         in_layers.append(models[i](input_layer_1))
         # idx of output which must be amplified 0-UP, 1-NONE, 2-DOWN
-        binary_layer.append(b.Binary(name=str(uuid.uuid4()), idx=1))
+        binary_layer.append(b.Binary(name=str(uuid.uuid4()), idx=0))
         out_layers.append(binary_layer[i](in_layers[i]))
 
     output = tf.keras.layers.add(out_layers, name=str(uuid.uuid4()))
@@ -59,7 +59,10 @@ def model_complex_builder(file_list, prefix):
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.",
                             False, out_log)
 
+#[('11', 40), ('28', 34), ('16', 33), ('29', 20), ('15', 15), ('5', 14), ('19', 13), ('12', 11), ('8', 11), ('27', 10), ('22', 10), ('3', 9), ('24', 9), ('21', 9), ('25', 7), ('10', 7), ('20', 7), ('2', 4), ('13', 4), ('4', 3), ('23', 2), ('30', 2), ('9', 2)]
+#[('11', 114), ('16', 108), ('28', 92), ('29', 77), ('15', 65), ('22', 50), ('5', 50), ('19', 50), ('12', 49), ('3', 47), ('8', 46), ('10', 42), ('24', 41), ('20', 36), ('21', 36), ('23', 30), ('27', 30), ('25', 24), ('2', 17), ('13', 16), ('9', 13), ('7', 12), ('1', 11), ('30', 10), ('26', 10), ('4', 9), ('18', 5), ('17', 2)]
 
-file_list = ["weights_b25_150_19", "weights_b25_150_22", "weights_b25_150_10", "weights_b25_150_16", "weights_b25_150_3", "weights_b25_150_8"]
+
+file_list = ["weights_b25_150_11", "weights_b25_150_28", "weights_b25_150_16", "weights_b25_150_29", "weights_b25_150_15", "weights_b25_150_19", "weights_b25_150_12", "weights_b25_150_8", "weights_b25_150_27", "weights_b25_150_24", "weights_b25_150_25", "weights_b25_150_20", "weights_b25_150_9"]
 # file_list = ['weights_b25_150_30', 'weights_b25_150_86', 'weights_b25_150_104', 'weights_b25_150_16', 'weights_b25_150_103']
-model_complex_builder(file_list, '08')
+model_complex_builder(file_list, '10')

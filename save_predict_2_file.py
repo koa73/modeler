@@ -4,7 +4,7 @@
 import modelMaker as d
 import numpy as np
 
-data = d.ModelMaker()
+data = d
 
 source_path = '/models/archive/models/gpu/'
 model_1_name = "weights_b25_150_18"

@@ -178,6 +178,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/logs/complex/4/checker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/complex/best/check_complex_log.csv">
           <value>
             <Attribute>
@@ -186,6 +193,20 @@
           </value>
         </entry>
         <entry key="/models/logs/complex/best/checker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/complex/tmp/checker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/filter_01_Errors_log.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />

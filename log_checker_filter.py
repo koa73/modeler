@@ -4,13 +4,16 @@
 
 import modelMaker as d
 import csv
+import re
+import collections
 
 data = d.ModelMaker()
 
 path = data.get_file_dir() + '/models/logs/'
-file_name = path + 'check_01_log.csv'
-output_log = 'filter_100_Errors_log.csv'
+file_name = path + 'check_complex_log.csv'
+output_log = 'filter_01_Errors_log.csv'
 count = 0
+dict = {}
 
 try:
     with open(file_name, newline='') as f:
@@ -21,17 +24,24 @@ try:
                 # row[3] - Rel_Error
                 # row[1] - Hit
                 #if (float(row[3]) <= 18  and int(row[1]) >= 99):
-                if (float(row[2]) == 4 and int(row[1]) >= 68 ):
-                    print (row)
+                if (float(row[2]) == 0 and int(row[1]) >= 68 ):
                     count +=1
                     d.write_log(path+output_log, row)
-                    print(row[5]+',')
+
+                    file_list = row[5].split(',')
+                    for name in file_list:
+                        num = re.findall(r"_(\d+)\']?$", name)
+                        if num[0] in dict:
+                            dict[num[0]] = dict[num[0]] + 1
+                        else:
+                            dict[num[0]] = 1
             except IndexError:
                 continue
             except ValueError:
                 pass
     f.close()
     print(count)
+    print(sorted(dict.items(), key=lambda x: x[1], reverse=True))
 
 except FileNotFoundError:
     print("Can't open file : " + file_name)

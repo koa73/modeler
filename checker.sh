@@ -20,9 +20,9 @@ printf "\r${3} : [${_fill// /#}${_empty// /-}] ${_progress}%%  Until the end app
 _start=0
 # This accounts as the "totalState" variable for the ProgressBar function
 # 147
-_end=131
-# Step size
-_step=10
+_end=54
+# Butch size
+_step=100
 
 if [ -f ./models/logs/checker_log.csv ]; then
    count_file=$(find ./models/logs/checker_* -type f |wc -l)

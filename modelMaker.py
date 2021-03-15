@@ -9,7 +9,7 @@ import tensorflow as tf
 
 
 # Create list of file names uniq variants
-def create_uniq_names(first, last, offset=0, batch_size=0, pat = 'weights_b25_150_'):
+def create_uniq_names(first, last, offset=0, step=0, pat='weights_b25_150_'):
     arr = []
     for i in range(first, last):
         arr.append(i)
@@ -25,14 +25,14 @@ def create_uniq_names(first, last, offset=0, batch_size=0, pat = 'weights_b25_15
                     d[str(sorted([a, b, c]))] = [pat + str(c), pat + str(b), pat + str(a)]
     arr = []
     idx = 0
-    size = offset + batch_size
+    size = offset + step
     for item in list(d.values()):
         idx += 1
         if idx <= offset:
             continue
 
         arr.append(item)
-        if (batch_size > 0) and (idx == size):
+        if (step > 0) and (idx == size):
             break
     return arr
 
@@ -54,6 +54,26 @@ def write_log(name, data_list):
 
     csv_out_file.close()
 
+
+# Находит максимум в массиве (n, 3 ) и конвертирует в форму 1./0. [0., 0. , 0.]
+def convert_to_simple_shape(np_array):
+    result = []
+    for i in range(np_array.shape[0]):
+        winner = np.argwhere(np_array[i] == np.amax(np_array[i]))
+        if (winner.size > 1):
+            result.append([0., 1., 0.])
+        else:
+            z = np.zeros(3, dtype=float)
+            z[winner[0][0]] = 1.
+            result.append(z)
+
+    return np.array(result).astype(np.float32)
+
+
+# эмулирует слой Binary
+def binary_convert(inputs, idx=0):
+    return tf.math.multiply(tf.one_hot(tf.math.argmax(inputs, axis=1), tf.shape(inputs)[1]),
+                            tf.one_hot(idx, tf.shape(inputs)[1]))
 
 class ModelMaker:
     __fileDir = os.path.dirname(os.path.abspath(__file__))
@@ -146,20 +166,6 @@ class ModelMaker:
                 down += 1
         print("\nUP:\t" + str(up) + "\nNONE:\t" + str(none) + "\nDOWN:\t" + str(down) + "\n")
         return up, none, down
-
-    # Находит максимум в массиве (n, 3 ) и конвертирует в форму 1./0. [0., 0. , 0.]
-    def convert_to_simple_shape(self, np_array):
-        result = []
-        for i in range(np_array.shape[0]):
-            winner = np.argwhere(np_array[i] == np.amax(np_array[i]))
-            if (winner.size > 1):
-                result.append([0., 1., 0.])
-            else:
-                z = np.zeros(3, dtype=float)
-                z[winner[0][0]] = 1.
-                result.append(z)
-
-        return np.array(result).astype(np.float32)
 
     # Check single model
     def check_single_model(self, y_UP, y_NONE, y_DOWN, model, comment='', need_archive=True, output_file_name = 'cheker'):
