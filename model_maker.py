@@ -100,4 +100,4 @@ for j in seq(1.0, 1.55, 0.05):
         # ====================== Check model =========================
 
         data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                                "DOWN model short period ----- fix 1/"+j+"/0.55")
+                                "DOWN model short period ----- fix 1/"+str(j)+"/0.55")
