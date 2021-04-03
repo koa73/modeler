@@ -91,7 +91,6 @@ for j in seq(1.0, 1.55, 0.05):
         X_up, y_up = data.get_check_data('test', 'UP_b38', '2D')
         X_none, y_none = data.get_check_data('test', 'NONE_b38', '2D')
 
-
         # ===================== Make prediction =====================
 
         y_up_pred_test = model.predict([X_up])
@@ -99,5 +98,6 @@ for j in seq(1.0, 1.55, 0.05):
         y_down_pred_test = model.predict([X_down])
 
         # ====================== Check model =========================
+
         data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
                                 "DOWN model short period ----- fix 1/"+j+"/0.55")
