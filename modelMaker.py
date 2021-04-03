@@ -236,7 +236,7 @@ class ModelMaker:
     def __archive_model_data(self, hit, mistake, sensetive, error, prefix, comment):
 
         dateTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        outputDir = self.__fileDir + "/models/"
+        outputDir = self.__fileDir + "/models/archive/"
         filename = self.__fileDir + "/models/archive/" + 'models_DB.csv'
         model_name = "weights_" + prefix
 
@@ -246,15 +246,17 @@ class ModelMaker:
             append_write = 'w'  # make a new file if not
 
         try:
+            print("++1")
             file_count = len([name for name in os.listdir(outputDir + 'models')
                               if os.path.isfile(os.path.join(outputDir + 'models', name))]) / 2
-
+            print("2 "+outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".json")
             copyfile(self.__fileDir + "/models/tmp/" + model_name + ".json",
-                     outputDir + "archive/models/" + model_name + "_" + str(int(file_count)) + ".json")
+                     outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".json")
 
             copyfile(self.__fileDir + "/models/tmp/" + model_name + ".h5",
-                     outputDir + "archive/models/" + model_name + "_" + str(int(file_count)) + ".h5")
+                     outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".h5")
 
+            print("3 " + outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".h5")
             with open(filename, append_write, newline='') as csv_out_file:
                 output = csv.writer(csv_out_file, delimiter=';')
                 if (append_write == 'w'):
@@ -266,4 +268,5 @@ class ModelMaker:
             csv_out_file.close()
 
         except FileNotFoundError:
+
             print("Error can't write file")

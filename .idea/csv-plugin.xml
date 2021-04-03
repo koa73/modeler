@@ -108,6 +108,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/archive/models_DB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/check_01_log.csv">
           <value>
             <Attribute>
