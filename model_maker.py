@@ -74,39 +74,29 @@ def seq(start, end, step):
     sample_count = int(abs(end - start) / step)
     return itertools.islice(itertools.count(start, step), sample_count)
 
+for j in seq(1.0, 1.55, 0.05):
 
-for i in seq(3.25, 3.55, 0.05):
+    for i in seq(3.25, 3.55, 0.05):
 
-    print("----------------  Start new loop with value : " + str(i))
-    # Тренировка сети Set 0 -UP, 1-None, 2-Down
-    # class_weight[1] = i
+        print("----------------  Start new loop with value : " + str(j))
+        # Тренировка сети Set 0 -UP, 1-None, 2-Down
+        class_weight[1] = j
 
-    model = prepare_model()
+        model = prepare_model()
 
-    # ===================== Data load =========================
+        # ===================== Data load =========================
 
-    X_down, y_down = data.get_check_data('test', 'DOWN_b38', '2D')
-    X_up, y_up = data.get_check_data('test', 'UP_b38', '2D')
-    X_none, y_none = data.get_check_data('test', 'NONE_b38', '2D')
+        X_down, y_down = data.get_check_data('test', 'DOWN_b38', '2D')
+        X_up, y_up = data.get_check_data('test', 'UP_b38', '2D')
+        X_none, y_none = data.get_check_data('test', 'NONE_b38', '2D')
 
 
-    # ===================== Make prediction =====================
+        # ===================== Make prediction =====================
 
-    y_up_pred_test = model.predict([X_up])
-    y_none_pred_test = model.predict([X_none])
-    y_down_pred_test = model.predict([X_down])
+        y_up_pred_test = model.predict([X_up])
+        y_none_pred_test = model.predict([X_none])
+        y_down_pred_test = model.predict([X_down])
 
-    # ====================== Check model =========================
-    data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                            "DOWN model short period ----- fix 1/1.15/0.55")
-
-#
-# y_pred_test = np.zeros(shape=(y_up.shape[0], 9))     # Сюда положим результаты прогона X_up моделями up, none, down
-# for i in range(0, y_up_pred_test.shape[0]):
-#     y_pred_test[i] = [y_up_pred_test[i, 0], y_up_pred_test[i, 1], y_up_pred_test[i, 2],
-#                       y_none_pred_test[i, 0], y_none_pred_test[i, 1], y_none_pred_test[i, 2],
-#                       y_down_pred_test[i, 0], y_down_pred_test[i, 1], y_down_pred_test[i, 2]]
-#
-# print("====== Save predicted data ======\n")
-# np.savetxt(data.get_file_dir() + '\data\complex.csv', y_pred_test, delimiter=';')
-#
+        # ====================== Check model =========================
+        data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
+                                "DOWN model short period ----- fix 1/"+j+"/0.55")

@@ -246,17 +246,14 @@ class ModelMaker:
             append_write = 'w'  # make a new file if not
 
         try:
-            print("++1")
             file_count = len([name for name in os.listdir(outputDir + 'models')
                               if os.path.isfile(os.path.join(outputDir + 'models', name))]) / 2
-            print("2 "+outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".json")
             copyfile(self.__fileDir + "/models/tmp/" + model_name + ".json",
                      outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".json")
 
             copyfile(self.__fileDir + "/models/tmp/" + model_name + ".h5",
                      outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".h5")
 
-            print("3 " + outputDir + "models/" + model_name + "_" + str(int(file_count)) + ".h5")
             with open(filename, append_write, newline='') as csv_out_file:
                 output = csv.writer(csv_out_file, delimiter=';')
                 if (append_write == 'w'):
