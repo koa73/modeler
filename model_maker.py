@@ -74,6 +74,7 @@ def seq(start, end, step):
     sample_count = int(abs(end - start) / step)
     return itertools.islice(itertools.count(start, step), sample_count)
 
+
 for j in seq(1.0, 1.55, 0.05):
 
     for i in seq(3.25, 3.55, 0.05):
