@@ -237,7 +237,7 @@ class ModelMaker:
 
         dateTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         outputDir = self.__fileDir + "/models/"
-        filename = self.__fileDir + "/models/archive/logs/" + 'models_DB.csv'
+        filename = self.__fileDir + "/models/archive/" + 'models_DB.csv'
         model_name = "weights_" + prefix
 
         if os.path.exists(filename):

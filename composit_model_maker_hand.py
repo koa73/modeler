@@ -63,6 +63,7 @@ def model_complex_builder(file_list, prefix):
 #[('11', 114), ('16', 108), ('28', 92), ('29', 77), ('15', 65), ('22', 50), ('5', 50), ('19', 50), ('12', 49), ('3', 47), ('8', 46), ('10', 42), ('24', 41), ('20', 36), ('21', 36), ('23', 30), ('27', 30), ('25', 24), ('2', 17), ('13', 16), ('9', 13), ('7', 12), ('1', 11), ('30', 10), ('26', 10), ('4', 9), ('18', 5), ('17', 2)]
 
 
-file_list = ["weights_b25_150_11", "weights_b25_150_28", "weights_b25_150_16", "weights_b25_150_29", "weights_b25_150_15", "weights_b25_150_19", "weights_b25_150_12", "weights_b25_150_8", "weights_b25_150_27", "weights_b25_150_24", "weights_b25_150_25", "weights_b25_150_20", "weights_b25_150_9"]
+file_list = ["weights_b25_150_11", "weights_b25_150_28", "weights_b25_150_16", "weights_b25_150_29", "weights_b25_150_15", "weights_b25_150_19", "weights_b25_150_12",  "weights_b25_150_20"
+    ]#,"weights_b25_150_8", "weights_b25_150_27", "weights_b25_150_24", "weights_b25_150_25", "weights_b25_150_9"]
 # file_list = ['weights_b25_150_30', 'weights_b25_150_86', 'weights_b25_150_104', 'weights_b25_150_16', 'weights_b25_150_103']
-model_complex_builder(file_list, '10')
+model_complex_builder(file_list, '11')

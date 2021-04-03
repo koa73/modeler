@@ -213,6 +213,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/logs/filter_02_Errors_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/filter_03_Errors_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/filter_0_Errors_log.csv">
           <value>
             <Attribute>
