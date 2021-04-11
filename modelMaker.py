@@ -75,6 +75,7 @@ def binary_convert(inputs, idx=0):
     return tf.math.multiply(tf.one_hot(tf.math.argmax(inputs, axis=1), tf.shape(inputs)[1]),
                             tf.one_hot(idx, tf.shape(inputs)[1]))
 
+
 class ModelMaker:
     __fileDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -168,7 +169,7 @@ class ModelMaker:
         return up, none, down
 
     # Check single model
-    def check_single_model(self, y_UP, y_NONE, y_DOWN, model, comment='', need_archive=True, output_file_name = 'cheker'):
+    def check_single_model(self, y_UP, y_NONE, y_DOWN, model, comment='', need_archive=True, output_file_name='cheker'):
 
         all_errors = 0
         print("------------------------------------ \n")
@@ -199,31 +200,39 @@ class ModelMaker:
 
         if need_archive:
 
-            self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
+            if ((k1 > 1.2 and k2 < 20) or (k2 == 0 and up_ + abs(down) > 5)):
+                self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
 
         else:
 
-            self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
+            self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment,
+                                  output_file_name)
 
-        # return up_+abs(down), all_errors, "%.4f" % k1, "%.4f" % k2
+        return up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2
 
     def read_file_db_to_list(self, input_file):
         try:
-            result_list = []
+            file_list = []
+            comment_list = []
             with open(self.__fileDir + input_file, newline='') as f:
-
+                next(f)
                 rows = csv.reader(f, delimiter=';', quotechar='|')
 
                 for row in rows:
                     try:
-                        result_list.append(row[5].replace(".h5", ""))
+                        file_list.append(row[5].replace(".h5", ""))
+                        comment_list.append(row[6])
                     except IndexError:
                         continue
             f.close()
-            return result_list
+            return file_list, comment_list
 
         except FileNotFoundError:
             print("Can't open file : " + input_file)
+
+    def write_log_file(self, param, model, comment, log_name):
+        self.__write_log_file(param[0], param[1], param[2], param[3], model, comment, log_name)
+
 
     def __write_log_file(self, hit, mistake, sensetive, error, about_models, additional_info, name="models"):
 
@@ -233,11 +242,11 @@ class ModelMaker:
 
         write_log(filename, [date_time, hit, mistake, error, sensetive, about_models, additional_info])
 
-    def __archive_model_data(self, hit, mistake, sensetive, error, prefix, comment):
+    def __archive_model_data(self, hit, mistake, sensetive, error, prefix, comment, out_subdir="/models/archive/"):
 
         dateTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        outputDir = self.__fileDir + "/models/archive/"
-        filename = self.__fileDir + "/models/archive/" + 'models_DB.csv'
+        outputDir = self.__fileDir + out_subdir
+        filename = self.__fileDir + out_subdir + 'models_DB.csv'
         model_name = "weights_" + prefix
 
         if os.path.exists(filename):

@@ -10,7 +10,7 @@ data = d.ModelMaker()
 path = data.get_file_dir() + '/models/logs/'
 #file_name = path + 'check_01_log.csv'
 #file_name = path + 'filter_100_Errors_log.csv'
-file_name = path + 'check_complex_2_log.csv'
+file_name = path + 'models_DB_log_0.csv'
 count = 0
 
 try:
