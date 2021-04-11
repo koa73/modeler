@@ -108,6 +108,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/model_filter.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/model_maker.py">
           <value>
             <Attribute>
@@ -273,6 +280,13 @@
           <value>
             <Attribute>
               <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/models_DB_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
