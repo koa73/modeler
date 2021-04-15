@@ -12,7 +12,7 @@ if (len(sys.argv) < 3):
     exit(0)
 
 #source_path = '/models/archive/complex/1/'
-source_path = '/models/archive/models/gpu_1/'
+source_path = '/models/archive/models/gpu_2/'
 #source_path = '/data/models/archive/complex/'
 comment_in_log = "DOWN complex leve 3 check zero"
 
@@ -31,24 +31,16 @@ def check_models(file_list):
         # Load test model
         model = data.model_loader(file_list[i], source_path)
         # Make prediction =====================
-        y_up_pred = (d.binary_convert(model.predict([X_up])) + y_up_pred)
-        y_none_pred = (d.binary_convert(model.predict([X_none])) + y_none_pred)
-        y_down_pred = (d.binary_convert(model.predict([X_down])) + y_down_pred)
+        y_up_pred = (model.predict([X_up]) + y_up_pred)
+        y_none_pred = (model.predict([X_none]) + y_none_pred)
+        y_down_pred = (model.predict([X_down]) + y_down_pred)
 
     return y_up_pred, y_none_pred, y_down_pred
 
 
 array = d.create_uniq_names(0, 116, offset=int(sys.argv[1]), step=int(sys.argv[2]))
 
-#file_list = ["weights_b25_150_19", "weights_b25_150_22", "weights_b25_150_10", "weights_b25_150_16", "weights_b25_150_3", "weights_b25_150_8"]
-
-#constant_list = ["weights_b25_150_11", "weights_b25_150_28", "weights_b25_150_16", "weights_b25_150_29", "weights_b25_150_15", "weights_b25_150_19", "weights_b25_150_12",  "weights_b25_150_20"]
-
-#y_up_pred_s, y_none_pred_s, y_down_pred_s = check_models(constant_list)
-
 for file_list in array:
-    #file_list.extend(constant_list)
+
     y_up_pred, y_none_pred, y_down_pred = check_models(file_list)
-#    data.check_single_model(y_up_pred + y_up_pred_s, y_none_pred + y_none_pred_s, y_down_pred + y_down_pred_s,
-#                            str(file_list), comment_in_log, False, "check_complex")
-    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, str(file_list), comment_in_log, False, "check_complex_down")
+    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, str(file_list), comment_in_log, False, "checker")

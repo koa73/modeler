@@ -205,9 +205,8 @@ class ModelMaker:
 
         else:
 
-            if ((k1 > 1.5 and k2 < 28) or (k2 == 0 and up_ + abs(down) > 10)):
-                self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment,
-                                  output_file_name)
+            if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
+                self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
 
         return up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2
 
