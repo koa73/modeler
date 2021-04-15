@@ -17,10 +17,10 @@ printf "\r${3} : [${_fill// /#}${_empty// /-}] ${_progress}%%  Until the end app
 }
 
 # Variables
-_start=5
+_start=0
 # This accounts as the "totalState" variable for the ProgressBar function
 # 147
-_end=54
+_end=2668
 # Butch size
 _step=100
 

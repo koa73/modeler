@@ -115,10 +115,24 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/model_filter_.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/model_maker.py">
           <value>
             <Attribute>
               <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/archive/models/models_DB_log_1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
@@ -277,6 +291,13 @@
           </value>
         </entry>
         <entry key="/models/logs/gpu/archive_DB_old.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/gpu_1/archive_DB.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
