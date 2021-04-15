@@ -38,7 +38,7 @@ def check_models(file_list):
     return y_up_pred, y_none_pred, y_down_pred
 
 
-array = d.create_uniq_names(0, 23, offset=int(sys.argv[1]), step=int(sys.argv[2]))
+array = d.create_uniq_names(0, 22, offset=int(sys.argv[1]), step=int(sys.argv[2]))
 
 for file_list in array:
 
