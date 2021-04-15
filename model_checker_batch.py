@@ -12,7 +12,7 @@ if (len(sys.argv) < 3):
     exit(0)
 
 #source_path = '/models/archive/complex/1/'
-source_path = '/models/archive/models/gpu_2/'
+source_path = '/models/archive/models/gpu_1/'
 #source_path = '/data/models/archive/complex/'
 comment_in_log = "DOWN complex leve 3 check zero"
 
@@ -38,9 +38,10 @@ def check_models(file_list):
     return y_up_pred, y_none_pred, y_down_pred
 
 
-array = d.create_uniq_names(0, 22, offset=int(sys.argv[1]), step=int(sys.argv[2]))
+array = d.create_uniq_names(0, 117, offset=int(sys.argv[1]), step=int(sys.argv[2]))
 
 for file_list in array:
 
     y_up_pred, y_none_pred, y_down_pred = check_models(file_list)
+    print(file_list)
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, str(file_list), comment_in_log, False, "checker")
