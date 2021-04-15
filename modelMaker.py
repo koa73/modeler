@@ -19,7 +19,7 @@ def create_uniq_names(first, last, offset=0, step=0, pat='weights_b25_150_'):
         for b in arr:
             for c in arr:
                 # remove variants with the same values
-                if a == b == c:
+                if (a == b == c) or (a == b) or (a == c) or (b == c):
                     continue
                 else:
                     d[str(sorted([a, b, c]))] = [pat + str(c), pat + str(b), pat + str(a)]
