@@ -9,9 +9,9 @@ import collections
 
 data = d.ModelMaker()
 
-path = data.get_file_dir() + '/models/logs/'
-file_name = path + 'check_complex_log.csv'
-output_log = 'filter_03_Errors_log.csv'
+path = data.get_file_dir() + '/models/logs/gpu_2/'
+file_name = path + 'checker_log.csv'
+output_log = 'filter_05_Errors_log.csv'
 count = 0
 dict = {}
 
@@ -24,7 +24,7 @@ try:
                 # row[3] - Rel_Error
                 # row[1] - Hit
                 #if (float(row[3]) <= 18  and int(row[1]) >= 99):
-                if (float(row[2]) == 0 and int(row[1]) >= 96 ):
+                if (float(row[2]) == 0 and int(row[1]) >= 70 ):
                     count +=1
                     d.write_log(path+output_log, row)
 

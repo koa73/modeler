@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 import modelMaker as d
+import Bynary as b
 import uuid
 
 data = d.ModelMaker()
@@ -10,10 +11,10 @@ data = d.ModelMaker()
 print("Start composite model making ....")
 
 model_base_name = "weights_b25_150_"
-#source_path = '/models/archive/models/gpu/'
-source_path = '/models/archive/complex/1/'
-model_archive_path = '/models/archive/complex/4/'
-out_log = "complex/4/checker"
+source_path = '/models/archive/models/gpu_1/'
+#source_path = '/models/archive/complex/1/'
+model_archive_path = '/models/archive/complex/5/'
+out_log = "complex/5/checker"
 
 # Сборка модели из листа, запись лога и сохранение моделей в dst каталог
 def model_complex_builder(file_list, prefix):
@@ -30,7 +31,8 @@ def model_complex_builder(file_list, prefix):
     input_layer_1 = tf.keras.layers.Input(shape=(24,), name=str(uuid.uuid4()))
     for i in range(len(models)):
         model_layers.append(models[i](input_layer_1))
-    output = tf.keras.layers.add(model_layers)
+    output_b = tf.keras.layers.add(model_layers)
+    output = tf.keras.layers.Softmax()(output_b)
     model = tf.keras.models.Model(inputs=input_layer_1, outputs=[output])
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     #
@@ -47,6 +49,8 @@ def model_complex_builder(file_list, prefix):
     y_up_pred = model.predict([X_up, X_up, X_up])
     y_none_pred = model.predict([X_none, X_none, X_none])
     y_down_pred = model.predict([X_down, X_down, X_down])
+
+    input(y_up_pred)
 
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.",
                             False, out_log)
@@ -96,32 +100,17 @@ def model_complex_binary_builder(file_list, prefix):
 
 # список моделей для сборки
 '''
-array = [['weights_b25_150_16', 'weights_b25_150_92', 'weights_b25_150_103'],
-['weights_b25_150_25', 'weights_b25_150_30', 'weights_b25_150_86'],
-['weights_b25_150_25', 'weights_b25_150_85', 'weights_b25_150_86'],
-['weights_b25_150_26', 'weights_b25_150_30', 'weights_b25_150_86'],
-['weights_b25_150_28', 'weights_b25_150_30', 'weights_b25_150_86'],
-['weights_b25_150_28', 'weights_b25_150_83', 'weights_b25_150_87'],
-['weights_b25_150_28', 'weights_b25_150_85', 'weights_b25_150_86'],
-['weights_b25_150_30', 'weights_b25_150_31', 'weights_b25_150_86'],
-['weights_b25_150_30', 'weights_b25_150_83', 'weights_b25_150_89'],
-['weights_b25_150_30', 'weights_b25_150_85', 'weights_b25_150_86'],
-['weights_b25_150_30', 'weights_b25_150_86', 'weights_b25_150_104'],
-['weights_b25_150_31', 'weights_b25_150_85', 'weights_b25_150_92'],
-['weights_b25_150_31', 'weights_b25_150_92', 'weights_b25_150_95'],
-['weights_b25_150_41', 'weights_b25_150_86', 'weights_b25_150_88'],
-['weights_b25_150_43', 'weights_b25_150_86', 'weights_b25_150_96'],
-['weights_b25_150_60', 'weights_b25_150_86', 'weights_b25_150_86'],
-['weights_b25_150_67', 'weights_b25_150_86', 'weights_b25_150_86'],
-['weights_b25_150_72', 'weights_b25_150_86', 'weights_b25_150_86'],
-['weights_b25_150_74', 'weights_b25_150_86', 'weights_b25_150_86']]
+array = [['weights_b25_150_16', 'weights_b25_150_92', 'weights_b25_150_103']]
 '''
-array = d.create_uniq_names(1, 32, 5, 0)
-i = 0
+#array = d.create_uniq_names(1, 32, 5, 0)
+array = [['weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63'],
+         ['weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63']]
+
+i = data.get_next_file_index(model_archive_path)
+
 for file_list in array:
-    i += 1
     try:
         model_complex_builder(file_list, str(i))
+        i += 1
     except Exception:
         pass
-

@@ -2,10 +2,12 @@
 
 import csv
 import os
+import tensorflow as tf
+import math
+
 from datetime import datetime
 import numpy as np
 from shutil import copyfile
-import tensorflow as tf
 
 
 # Create list of file names uniq variants
@@ -82,6 +84,14 @@ class ModelMaker:
     def __init__(self, testPrefix='') -> None:
         super().__init__()
         self.testPrefix = testPrefix
+
+    def get_next_file_index(self, dir_path):
+
+        no_of_files = len(os.listdir(self.__fileDir + dir_path))
+
+        if no_of_files > 1:
+            return math.ceil(no_of_files / 2)
+        return 0
 
     def model_loader(self, prefix, path=''):
         if not path:

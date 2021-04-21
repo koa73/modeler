@@ -11,8 +11,8 @@ data = d.ModelMaker()
 print("Start composite model making ....")
 
 model_base_name = "weights_b25_150_"
-#source_path = '/models/archive/models/gpu/'
-source_path = '/models/archive/complex/1/'
+source_path = '/models/archive/models/gpu_2/'
+#source_path = '/models/archive/complex/1/'
 out_log = "complex/tmp/checker"
 model_archive_path = '/models/archive/complex/best/'
 

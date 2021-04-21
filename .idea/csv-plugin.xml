@@ -227,6 +227,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/logs/complex/5/checker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/complex/best/check_complex_log.csv">
           <value>
             <Attribute>
@@ -305,6 +312,34 @@
           </value>
         </entry>
         <entry key="/models/logs/gpu_1/archive_DB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/gpu_2/archive_DB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/gpu_2/checker_1_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/gpu_2/checker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/gpu_2/filter_05_Errors_log.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
