@@ -50,8 +50,6 @@ def model_complex_builder(file_list, prefix):
     y_none_pred = model.predict([X_none, X_none, X_none])
     y_down_pred = model.predict([X_down, X_down, X_down])
 
-    input(y_up_pred)
-
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.",
                             False, out_log)
 
