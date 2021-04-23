@@ -7,10 +7,11 @@ import csv
 
 data = d.ModelMaker()
 
-path = data.get_file_dir() + '/models/logs/gpu_2/'
+path = data.get_file_dir() + '/models/logs/complex/5/'
+#path = data.get_file_dir() + '/models/logs/gpu_2/'
 #file_name = path + 'check_01_log.csv'
 #file_name = path + 'filter_100_Errors_log.csv'
-file_name = path + 'checker_1_log.csv'
+file_name = path + 'checker_log.csv'
 count = 0
 
 try:

@@ -20,7 +20,7 @@ printf "\r${3} : [${_fill// /#}${_empty// /-}] ${_progress}%%  Until the end app
 _start=0
 # This accounts as the "totalState" variable for the ProgressBar function
 # 147
-_end=2602
+_end=33
 # Butch size
 _step=100
 
@@ -35,7 +35,8 @@ do
     let _offset=$number*${_step}
     start_time=`date +%s`
     # Put here your script
-    nice -19 python3 ./model_checker_batch.py ${_offset} ${_step} > /dev/null 2>&1
+    #nice -19 python3 ./model_checker_batch.py ${_offset} ${_step} > /dev/null 2>&1
+    nice -19 python3 ./composit_model_maker.py ${_offset} ${_step} > /dev/null 2>&1
     end_time=`date +%s`
     runtime=$((end_time-start_time))
     let common_time=(${_end}-$number)*$runtime

@@ -14,7 +14,7 @@ file_name = path + 'checker_log.csv'
 output_log = 'filter_05_Errors_log.csv'
 count = 0
 dict = {}
-
+output_array = '['
 try:
     with open(file_name, newline='') as f:
         next(f)
@@ -24,8 +24,9 @@ try:
                 # row[3] - Rel_Error
                 # row[1] - Hit
                 #if (float(row[3]) <= 18  and int(row[1]) >= 99):
-                if (float(row[2]) == 0 and int(row[1]) >= 70 ):
+                if (float(row[2]) == 0 and int(row[1]) >= 60 ):
                     count +=1
+                    output_array = output_array + ', ' +row[5]
                     d.write_log(path+output_log, row)
 
                     file_list = row[5].split(',')
@@ -42,6 +43,6 @@ try:
     f.close()
     print(count)
     print(sorted(dict.items(), key=lambda x: x[1], reverse=True))
-
+    print(output_array+']')
 except FileNotFoundError:
     print("Can't open file : " + file_name)

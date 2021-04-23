@@ -7,7 +7,6 @@ import itertools
 import numpy as np
 import time
 
-
 data = d.ModelMaker()
 
 dirPath = data.get_file_dir()+ "/models/tmp/"

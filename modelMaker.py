@@ -3,6 +3,7 @@
 import csv
 import os
 import tensorflow as tf
+from itertools import *
 import math
 
 from datetime import datetime
@@ -76,6 +77,23 @@ def convert_to_simple_shape(np_array):
 def binary_convert(inputs, idx=0):
     return tf.math.multiply(tf.one_hot(tf.math.argmax(inputs, axis=1), tf.shape(inputs)[1]),
                             tf.one_hot(idx, tf.shape(inputs)[1]))
+
+
+# получить уникальные комбинации моделей из 3х компонентов с заданным стартовым компонентом
+# end_idx должен быть на 1 больше максимального числа элементов
+def get_combinations_name(file_prefix, first_elements, end_idx):
+
+    arr = []
+    for i in range(0, end_idx):
+        if i not in first_elements:
+            arr.append(i)
+
+    result = []
+
+    for i in combinations(arr, 2):
+        result.append([file_prefix + str(s) for s in first_elements.__add__(list(i))])
+
+    return result
 
 
 class ModelMaker:
@@ -209,8 +227,8 @@ class ModelMaker:
               "\t Sensitive : " + "%.4f" % k1 + " %\t Relevant_Error : " + "%.4f" % k2 + " %\n")
 
         if need_archive:
-
-            if ((k1 > 1.2 and k2 < 20) or (k2 == 0 and up_ + abs(down) > 5)):
+            # k1- чувствительность, k2 - относительная ошибка
+            if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
                 self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
 
         else:

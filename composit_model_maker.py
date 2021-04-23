@@ -5,16 +5,22 @@ import tensorflow as tf
 import modelMaker as d
 import Bynary as b
 import uuid
+import sys
 
 data = d.ModelMaker()
 
 print("Start composite model making ....")
 
 model_base_name = "weights_b25_150_"
-source_path = '/models/archive/models/gpu_1/'
-#source_path = '/models/archive/complex/1/'
+#source_path = '/models/archive/models/gpu_1/'
+source_path = '/models/archive/complex/4/'
 model_archive_path = '/models/archive/complex/5/'
 out_log = "complex/5/checker"
+
+
+if (len(sys.argv) < 3):
+    print("Argument not found ")
+    exit(0)
 
 # Сборка модели из листа, запись лога и сохранение моделей в dst каталог
 def model_complex_builder(file_list, prefix):
@@ -71,7 +77,7 @@ def model_complex_binary_builder(file_list, prefix):
     for i in range(len(models)):
         in_layers.append(models[i](input_layer_1))
         # idx of output which must be amplified 0-UP, 1-NONE, 2-DOWN
-        binary_layer.append(b.Binary(name=str(uuid.uuid4()), idx=1))
+        binary_layer.append(b.Binary(name=str(uuid.uuid4()), idx=2))
         out_layers.append(binary_layer[i](in_layers[i]))
 
     output = tf.keras.layers.add(out_layers, name=str(uuid.uuid4()))
@@ -95,20 +101,33 @@ def model_complex_binary_builder(file_list, prefix):
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 2 level. Big sensitive.",
                             False, out_log)
 
-
 # список моделей для сборки
 '''
-array = [['weights_b25_150_16', 'weights_b25_150_92', 'weights_b25_150_103']]
+array = d.create_uniq_names(1, 32, 5, 0)
+
+array = [['weights_b25_150_16', 'weights_b25_150_91', 'weights_b25_150_100'],
+         ['weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63'],
+         ['weights_b25_150_46', 'weights_b25_150_53', 'weights_b25_150_107']]
+         
+array = [['weights_b25_150_0', 'weights_b25_150_1', 'weights_b25_150_2']]         
+         
+array = [['weights_b25_150_16', 'weights_b25_150_91', 'weights_b25_150_100', 'weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63','weights_b25_150_46', 'weights_b25_150_53', 'weights_b25_150_107']]
+array = [['weights_b25_150_0', 'weights_b25_150_1', 'weights_b25_150_2']]
 '''
-#array = d.create_uniq_names(1, 32, 5, 0)
-array = [['weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63'],
-         ['weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63']]
+start = int(sys.argv[1])
+end = int(sys.argv[2])
+if start > 0:
+    end = start + end
+
+print (str(start)+" , "+str(end))
+
+array = d.get_combinations_name('weights_b25_150_', [70], 82)[start:end]
 
 i = data.get_next_file_index(model_archive_path)
 
 for file_list in array:
     try:
-        model_complex_builder(file_list, str(i))
+        model_complex_binary_builder(file_list, str(i))
         i += 1
     except Exception:
         pass
