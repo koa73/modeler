@@ -14,8 +14,8 @@ print("Start composite model making ....")
 model_base_name = "weights_b25_150_"
 #source_path = '/models/archive/models/gpu_1/'
 source_path = '/models/archive/complex/4/'
-model_archive_path = '/models/archive/complex/5/'
-out_log = "complex/5/checker"
+model_archive_path = '/models/archive/complex/6/'
+out_log = "complex/6/checker"
 
 
 if (len(sys.argv) < 3):
@@ -121,7 +121,7 @@ if start > 0:
 
 print (str(start)+" , "+str(end))
 
-array = d.get_combinations_name('weights_b25_150_', [70], 82)[start:end]
+array = d.get_combinations_name('weights_b25_150_', [70,4,27,38,56], 82)[start:end]
 
 i = data.get_next_file_index(model_archive_path)
 
