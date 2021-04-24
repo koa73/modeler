@@ -234,6 +234,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/logs/complex/6/checker_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/complex/best/check_complex_log.csv">
           <value>
             <Attribute>
