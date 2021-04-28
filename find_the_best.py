@@ -7,7 +7,7 @@ import csv
 
 data = d.ModelMaker()
 
-path = data.get_file_dir() + '/models/logs/complex/11/'
+path = data.get_file_dir() + '/models/logs/complex/5/'
 #path = data.get_file_dir() + '/models/logs/gpu_2/'
 #file_name = path + 'check_01_log.csv'
 #file_name = path + 'filter_100_Errors_log.csv'

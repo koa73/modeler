@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 import modelMaker as d
-import Bynary as b
+import Binary as b
 import uuid
 import sys
 
@@ -13,9 +13,9 @@ print("Start composite model making ....")
 
 model_base_name = "weights_b25_150_"
 #source_path = '/models/archive/models/gpu_1/'
-source_path = '/models/archive/complex/4/'
-model_archive_path = '/models/archive/complex/11/'
-out_log = "complex/11/checker"
+source_path = '/models/archive/complex/1/'
+model_archive_path = '/models/archive/complex/5/'
+out_log = "complex/5/checker"
 
 
 if (len(sys.argv) < 3):
@@ -77,7 +77,7 @@ def model_complex_binary_builder(file_list, prefix):
     for i in range(len(models)):
         in_layers.append(models[i](input_layer_1))
         # idx of output which must be amplified 0-UP, 1-NONE, 2-DOWN
-        binary_layer.append(b.Binary(name=str(uuid.uuid4()), idx=2))
+        binary_layer.append(b.Binary(0, name=str(uuid.uuid4())))
         out_layers.append(binary_layer[i](in_layers[i]))
 
     output = tf.keras.layers.add(out_layers, name=str(uuid.uuid4()))
@@ -121,7 +121,8 @@ if start > 0:
 
 print(str(start)+" , "+str(end))
 
-array = d.get_combinations_name('weights_b25_150_', [70,4,27,38,56,76,80,45,72,42,68,33,9,26,17,28,37,69,79,29,53], 82)[start:end]
+#array = d.get_combinations_name('weights_b25_150_', [70,4,27,38,56,76,80,45,72,42,68,33,9,26,17,28,37,69,79,29,53], 82)[start:end]
+array = d.get_combinations_name('weights_b25_150_', [10,19,22,16,28,20,29,12,15,9,11,24,25,26], 31)[start:end] # UP data from gpu_1
 
 i = data.get_next_file_index(model_archive_path)
 

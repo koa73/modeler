@@ -45,6 +45,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models/logs/complex/4/check_complex_log.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/logs/complex/4/checker_log.csv">
           <value>
             <Attribute>
@@ -116,6 +123,13 @@
           </value>
         </entry>
         <entry key="/models/logs/gpu/archive_DB_old.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/models/logs/gpu/checker_1/check_1_log.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />

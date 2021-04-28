@@ -1,5 +1,5 @@
 import modelMaker as d
 
-arr = d.get_combinations_name('weights_b25_150_', [70,4,27,38,56,76,80,45,72,42,68,33,9,26, 17, 28, 37, 79, 69, 29, 53], 82)
+arr = d.get_combinations_name('weights_b25_150_', [10,19,22, 16,28, 20, 29, 12, 15, 9, 11, 24,25,26], 32)
 print(arr)
 print(len(arr))
