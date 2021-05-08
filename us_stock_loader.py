@@ -30,18 +30,23 @@ def every_downloads_chrome(driver):
 
 
 # Get cvv file with end of day data
-def get_file(end_Date) -> str:
+def get_file(end_Date = '') -> str:
+
+    url_path = 'http://www.eoddata.com/products/services.aspx'
+    download_path = '/home/oleg/PycharmProjects/modeler/download'
+    file_path = ''
+
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
-    options.add_experimental_option("prefs",
-                                    {"download.default_directory": "/home/oleg/PycharmProjects/modeler/download"})
+    options.add_experimental_option("prefs", {"download.default_directory": download_path})
     #options.add_argument('--headless')
     #options.add_argument('--no-sandbox')
+    options.add_argument("window-size=1920,1080")
     driver = webdriver.Chrome(options=options)
     stage = 0  # Login page loaded
-    file_path = ''
+
     try:
-        driver.get('http://www.eoddata.com/products/services.aspx')
+        driver.get(url_path)
         login_form = driver.find_element_by_id('aspnetForm')
 
         if login_form is not None:
@@ -53,7 +58,7 @@ def get_file(end_Date) -> str:
             stage += 1  # Logged to site
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_ls1_lnkLogOut')))
 
-            driver.get('http://www.eoddata.com/products/services.aspx')
+            driver.get(url_path)
 
             stage += 1  # Download form found
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_cboExchange')))
@@ -61,16 +66,22 @@ def get_file(end_Date) -> str:
             stage += 1  # Download parameters were setted
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboExchange')). \
                 select_by_visible_text("New York Stock Exchange")
+            time.sleep(1)
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboDataFormat')).select_by_visible_text("Standard CSV")
+            time.sleep(1)
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboPeriod')).select_by_visible_text("End of Day")
-            end_date = driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate')
-            end_date.clear()
-            end_date.send_keys(end_Date)
+            time.sleep(1)
 
-            time.sleep(10)
+            if len(end_Date) > 3:
+
+                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').clear()
+                time.sleep(1)
+                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').click()
+                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').send_keys(end_Date)
+
             stage += 1  # Download button was clicked
             driver.find_element_by_id('ctl00_cph1_dd1_btnDownload').click()
-            time.sleep(100)
+            time.sleep(1)
             file_path = WebDriverWait(driver, 10).until(every_downloads_chrome)
 
             logging.info(stage_value[0])
@@ -88,5 +99,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='us_stock_loaded.log',
                         level=logging.INFO)
     # get_file(str(datetime.today().strftime("%d/%m/%Y")))
-    file_path = get_file('05/05/2021')
+    #file_path = get_file('05/05/2021')
+    file_path = get_file()
     print(file_path)
