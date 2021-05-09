@@ -29,12 +29,31 @@ def every_downloads_chrome(driver):
         """)
 
 
+def wait_for_downloads(download_path):
+    max_delay = 30
+    interval_delay = 0.5
+    total_delay = 0
+    file = ''
+    done = False
+    while not done and total_delay < max_delay:
+        files = [f for f in os.listdir(download_path) if f.endswith('.crdownload')]
+        if not files and len(file) > 1:
+            done = True
+        if files:
+            file = files[0]
+        time.sleep(interval_delay)
+        total_delay += interval_delay
+    if not done:
+        logging.error("File(s) couldn't be downloaded")
+    return download_path + '/' + file.replace(".crdownload", "")
+
+
 # Get cvv file with end of day data
 def get_file(end_Date = '') -> str:
 
     url_path = 'http://www.eoddata.com/products/services.aspx'
     download_path = '/home/oleg/PycharmProjects/modeler/download'
-    file_path = ''
+    downloaded_file = ''
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
@@ -42,6 +61,7 @@ def get_file(end_Date = '') -> str:
     #options.add_argument('--headless')
     #options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
+    options.add_argument("--blink-settings=imagesEnabled=false")
     driver = webdriver.Chrome(options=options)
     stage = 0  # Login page loaded
 
@@ -66,11 +86,8 @@ def get_file(end_Date = '') -> str:
             stage += 1  # Download parameters were setted
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboExchange')). \
                 select_by_visible_text("New York Stock Exchange")
-            time.sleep(1)
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboDataFormat')).select_by_visible_text("Standard CSV")
-            time.sleep(1)
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboPeriod')).select_by_visible_text("End of Day")
-            time.sleep(1)
 
             if len(end_Date) > 3:
 
@@ -81,8 +98,8 @@ def get_file(end_Date = '') -> str:
 
             stage += 1  # Download button was clicked
             driver.find_element_by_id('ctl00_cph1_dd1_btnDownload').click()
-            time.sleep(1)
-            file_path = WebDriverWait(driver, 10).until(every_downloads_chrome)
+            time.sleep(2)
+            downloaded_file = wait_for_downloads(download_path)
 
             logging.info(stage_value[0])
         else:
@@ -92,13 +109,13 @@ def get_file(end_Date = '') -> str:
         logging.info('Cancelled on stage : "' + stage_value[stage] + '", reason : ' + str(e))
 
     finally:
-        return file_path
+        return downloaded_file
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='us_stock_loaded.log',
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py','.log'),
                         level=logging.INFO)
     # get_file(str(datetime.today().strftime("%d/%m/%Y")))
     #file_path = get_file('05/05/2021')
-    file_path = get_file()
-    print(file_path)
+    received_file = get_file()
+    print(received_file)
