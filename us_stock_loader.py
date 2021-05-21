@@ -21,6 +21,7 @@ stage_value = [
 
 global db_connect
 
+
 def wait_for_downloads(download_path):
 
     max_delay = 30
