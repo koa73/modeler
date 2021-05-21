@@ -1,13 +1,14 @@
 import logging
 import time
 import os
+import cx_Oracle
+import csv
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from datetime import datetime
 
 service_login = os.environ['SERVICE_LOGIN']
 service_password = os.environ['SERVICE_PASSWORD']
@@ -17,19 +18,8 @@ stage_value = [
     'Download button was clicked']
 
 
-def every_downloads_chrome(driver):
-    if not driver.current_url.startswith("chrome://downloads"):
-        driver.get("chrome://downloads/")
-    return driver.execute_script("""
-        var elements = document.querySelector('downloads-manager')
-        .shadowRoot.querySelector('#downloadsList')
-        .items
-        if (elements.every(e => e.state === 'COMPLETE'))
-        return elements.map(e => e.filePath || e.file_path || e.fileUrl || e.file_url);
-        """)
-
-
 def wait_for_downloads(download_path):
+
     max_delay = 30
     interval_delay = 0.5
     total_delay = 0
@@ -45,27 +35,34 @@ def wait_for_downloads(download_path):
         total_delay += interval_delay
     if not done:
         logging.error("File(s) couldn't be downloaded")
-    return download_path + '/' + file.replace(".crdownload", "")
+        return ""
+    else:
+        return download_path + '/' + file.replace(".crdownload", "")
 
 
 # Get cvv file with end of day data
-def get_file(end_Date = '') -> str:
+def get_file(stock_exchange_name,  end_date:str = None) -> str:
 
     url_path = 'http://www.eoddata.com/products/services.aspx'
     download_path = '/home/oleg/PycharmProjects/modeler/download'
-    downloaded_file = ''
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
     options.add_experimental_option("prefs", {"download.default_directory": download_path})
-    #options.add_argument('--headless')
-    #options.add_argument('--no-sandbox')
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
     driver = webdriver.Chrome(options=options)
     stage = 0  # Login page loaded
 
     try:
+
+        stock_exchange_dict = {
+            'NYSE': "New York Stock Exchange",
+            'NASDAQ': "NASDAQ Stock Exchange"
+        }
+
         driver.get(url_path)
         login_form = driver.find_element_by_id('aspnetForm')
 
@@ -85,37 +82,77 @@ def get_file(end_Date = '') -> str:
 
             stage += 1  # Download parameters were setted
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboExchange')). \
-                select_by_visible_text("New York Stock Exchange")
+                select_by_visible_text(stock_exchange_dict[stock_exchange_name])
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboDataFormat')).select_by_visible_text("Standard CSV")
             Select(driver.find_element_by_id('ctl00_cph1_dd1_cboPeriod')).select_by_visible_text("End of Day")
 
-            if len(end_Date) > 3:
-
+            if end_date is not None:
                 driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').clear()
                 time.sleep(1)
                 driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').click()
-                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').send_keys(end_Date)
+                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').send_keys(end_date)
 
             stage += 1  # Download button was clicked
-            driver.find_element_by_id('ctl00_cph1_dd1_btnDownload').click()
-            time.sleep(2)
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_btnDownload'))).click()
+            time.sleep(1)
             downloaded_file = wait_for_downloads(download_path)
 
             logging.info(stage_value[0])
+            return downloaded_file
+
         else:
-            logging.info('Unsuccess result')
+            logging.info('Unsuccessful result')
 
-    except Exception as e:
-        logging.info('Cancelled on stage : "' + stage_value[stage] + '", reason : ' + str(e))
+    except Exception as ex:
+        logging.info('Cancelled on stage : "' + stage_value[stage] + '", reason : ' + str(ex))
 
-    finally:
-        return downloaded_file
+    return ""
+
+
+def connect():
+    cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
+                                 config_dir="/usr/local/src/instantclient_21_1/network/admin")
+    connection = cx_Oracle.connect("ADMIN", "Oracle638710", "db202105041827_tp")
+    return connection
+
+
+def insert_to_db_table(file_name, stock_exchange):
+    try:
+        db_connect = connect()
+        with open(file_name, newline='') as f:
+            rows = csv.DictReader(f, delimiter=',', quotechar='|')
+            for row in rows:
+                if db_connect:
+                    query = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
+                            (stock_exchange, row['Symbol'], row['Date'], float(row['Open']), float(row['High']),
+                             float(row['Low']), float(row['Close']), float(row['Volume']))
+                    cursor = db_connect.cursor()
+                    cursor.execute(query)
+                    db_connect.commit()
+            f.close()
+        db_connect.close()
+
+    except FileNotFoundError:
+        logging.info("Can't read received file : "+file_name)
+
+    except cx_Oracle.Error as ex:
+        logging.info('DB Error : '+str(ex))
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py','.log'),
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
-    # get_file(str(datetime.today().strftime("%d/%m/%Y")))
-    #file_path = get_file('05/05/2021')
-    received_file = get_file()
-    print(received_file)
+
+    for stock_exchange_name in ['NASDAQ']:
+        try:
+            received_file = get_file(stock_exchange_name, '05/17/2021')
+            #received_file = get_file(stock_exchange_name)
+            if "".__eq__(received_file):
+                print('Unsuccessful result')
+                logging.info('----->> ' + stock_exchange_name + 'Unsuccessful result')
+            else:
+                insert_to_db_table(received_file, stock_exchange_name)
+        except Exception as ex:
+            logging.info('----->> ' + stock_exchange_name +' : ' + str(ex))
+
+
