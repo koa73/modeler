@@ -12,11 +12,14 @@ from selenium.webdriver.common.by import By
 
 service_login = os.environ['SERVICE_LOGIN']
 service_password = os.environ['SERVICE_PASSWORD']
+oracle_login = os.environ['ORACLE_LOGIN']
+oracle_password = os.environ['ORACLE_PASSWORD']
 
 stage_value = [
     'Login page loaded', 'Logged to site', 'Download form found', 'Download parameters were setted',
     'Download button was clicked']
 
+global db_connect
 
 def wait_for_downloads(download_path):
 
@@ -110,15 +113,19 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
 
 
 def connect():
-    cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
+    try:
+        cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
                                  config_dir="/usr/local/src/instantclient_21_1/network/admin")
-    connection = cx_Oracle.connect("ADMIN", "Oracle638710", "db202105041827_tp")
-    return connection
+        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202105041827_tp")
+        return connection
+
+    except cx_Oracle.Error as ex:
+        logging.info('DB connection Error : '+str(ex))
 
 
 def insert_to_db_table(file_name, stock_exchange):
+
     try:
-        db_connect = connect()
         with open(file_name, newline='') as f:
             rows = csv.DictReader(f, delimiter=',', quotechar='|')
             for row in rows:
@@ -130,7 +137,6 @@ def insert_to_db_table(file_name, stock_exchange):
                     cursor.execute(query)
                     db_connect.commit()
             f.close()
-        db_connect.close()
 
     except FileNotFoundError:
         logging.info("Can't read received file : "+file_name)
@@ -142,7 +148,7 @@ def insert_to_db_table(file_name, stock_exchange):
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
-
+    db_connect = connect()
     for stock_exchange_name in ['NYSE', 'NASDAQ']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
@@ -154,6 +160,7 @@ if __name__ == '__main__':
                     logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
                 else:
                     insert_to_db_table(received_file, stock_exchange_name)
+                    os.remove(received_file)
                     break
 
         except Exception as ex:
