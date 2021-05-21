@@ -143,16 +143,20 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
 
-    for stock_exchange_name in ['NASDAQ']:
+    for stock_exchange_name in ['NYSE', 'NASDAQ']:
         try:
-            received_file = get_file(stock_exchange_name, '05/17/2021')
-            #received_file = get_file(stock_exchange_name)
-            if "".__eq__(received_file):
-                print('Unsuccessful result')
-                logging.info('----->> ' + stock_exchange_name + 'Unsuccessful result')
-            else:
-                insert_to_db_table(received_file, stock_exchange_name)
+            logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
+            while True:
+                #received_file = get_file(stock_exchange_name, '05/20/2021')
+                received_file = get_file(stock_exchange_name)
+                if "".__eq__(received_file):
+                    print('Unsuccessful result')
+                    logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
+                else:
+                    insert_to_db_table(received_file, stock_exchange_name)
+                    break
+
         except Exception as ex:
-            logging.info('----->> ' + stock_exchange_name +' : ' + str(ex))
+            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
 
 
