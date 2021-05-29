@@ -153,7 +153,7 @@ if __name__ == '__main__':
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
-                received_file = get_file(stock_exchange_name, '05/24/2021')
+                received_file = get_file(stock_exchange_name, '05/25/2021')
                 #received_file = get_file(stock_exchange_name)
                 if "".__eq__(received_file):
                     print('Unsuccessful result')

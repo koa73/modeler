@@ -42,7 +42,8 @@ def get_data_from_table(stock_exchange):
 
     try:
         if db_connect:
-            query = "SELECT JSON_OBJECT(KEY 'symbol' VALUE symbol, KEY 'date' VALUE max(date_rw)," \
+            query = "SELECT JSON_OBJECT(KEY 'symbol' VALUE symbol, " \
+                    "KEY 'date' VALUE to_char(max(date_rw), 'dd/mm/yyyy')," \
                     " KEY 'open' VALUE JSON_ARRAYAGG( open ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'high' VALUE JSON_ARRAYAGG( high ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'low' VALUE JSON_ARRAYAGG( low ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
@@ -78,6 +79,20 @@ def get_check_data(json_row):
     return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24)
 
 
+def insert_signal_to_db(symbol, stock_exchange_name, date_rw, signal, pwr):
+
+    query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), '%s', %d)" % \
+            (symbol.rstrip(), stock_exchange_name, date_rw, signal, pwr)
+    try:
+        cursor = db_connect.cursor()
+        cursor.execute(query)
+        db_connect.commit()
+
+    except FileNotFoundError:
+        logging.info("Can't insert : " + query)
+
+    except cx_Oracle.Error as ex:
+        logging.info('DB Error : '+str(ex))
 
 
 if __name__ == '__main__':
@@ -94,12 +109,18 @@ if __name__ == '__main__':
             print('----------------------------------- ' + stock_exchange_name + ' ----------------------------')
             rows = get_data_from_table(stock_exchange_name)
             for json_row in rows:
-                symbol, date_rw, check_data = get_check_data(json_row)
+                try:
+                    symbol, date_rw, check_data = get_check_data(json_row)
+                except Exception as ex:
+                    continue
                 y_predicted = model.predict([check_data])[0]
-
-                if(y_predicted[0] > 0 or y_predicted[2] > 0):
+                if y_predicted[0] > 0:
                     print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw, y_predicted))
-
+                    insert_signal_to_db(symbol, stock_exchange_name, date_rw, 'UP', y_predicted[0])
+                elif y_predicted[2] > 0:
+                    print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw,
+                                                                                    y_predicted))
+                    insert_signal_to_db(symbol, stock_exchange_name, date_rw, 'DOWN', y_predicted[2])
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
 
