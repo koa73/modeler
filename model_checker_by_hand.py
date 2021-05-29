@@ -22,6 +22,9 @@ for i in range(3, 4):
     file_mame = pattern_file_name + str(i)
     model = data.model_loader(file_mame, source_path)
 
+    print(X_up)
+    input([X_up])
+
     y_up_pred = model.predict([X_up])
     y_none_pred = model.predict([X_none])
     y_down_pred = model.predict([X_down])
