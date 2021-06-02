@@ -79,10 +79,10 @@ def get_check_data(json_row):
     return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24)
 
 
-def insert_signal_to_db(symbol, stock_exchange_name, date_rw, signal, pwr):
+def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr):
 
-    query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), '%s', %d)" % \
-            (symbol.rstrip(), stock_exchange_name, date_rw, signal, pwr)
+    query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d)" % \
+            (symbol.rstrip(), stock_exchange_name, date_rw, pwr)
     try:
         cursor = db_connect.cursor()
         cursor.execute(query)
@@ -116,11 +116,11 @@ if __name__ == '__main__':
                 y_predicted = model.predict([check_data])[0]
                 if y_predicted[0] > 0:
                     print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw, y_predicted))
-                    insert_signal_to_db(symbol, stock_exchange_name, date_rw, 'UP', y_predicted[0])
+                    insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0])
                 elif y_predicted[2] > 0:
                     print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw,
                                                                                     y_predicted))
-                    insert_signal_to_db(symbol, stock_exchange_name, date_rw, 'DOWN', y_predicted[2])
+                    insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
 
