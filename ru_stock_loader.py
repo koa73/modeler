@@ -50,12 +50,12 @@ def insert_to_db_table(stock_exchange):
     for row in rows:
         if db_connect:
             # date_rw = datetime.strptime(row['TRADEDATE'], '%d.%m.%Y').strftime('%d-%b-%Y')
-            date_rw = '04-JUN-2021'
+            #date_rw = '04-JUN-2021'
+            date_rw = datetime.today().strftime('%d-%b-%Y')
             if row['VALTODAY'] > 0:
                 query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
                           (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
                            row['VALTODAY'])
-
                 cursor = db_connect.cursor()
                 cursor.execute(query_1)
                 db_connect.commit()

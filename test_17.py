@@ -25,10 +25,7 @@ def get_current_value_from_site(ts):
 if __name__ == '__main__':
     ts = int(datetime.now().timestamp()*1000)
     #ts = 1622753527
-    rows = get_current_value_from_site(str(ts))
-    for row in rows:
-        print(row)
-        input(row['SECID'] + ', ' + str(row['OPEN']) + ', ' + str(row['HIGH']) +', ' + str(row['LOW']) + ', ' + str(row['LAST'])
-              +', '+str(row['VALTODAY']))
+    date_rw = datetime.today().strftime('%d-%b-%Y')
+    print(date_rw)
 
 
