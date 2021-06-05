@@ -2,10 +2,9 @@ import logging
 from datetime import datetime
 import os
 import cx_Oracle
-import csv
+import requests
+import json
 
-service_login = os.environ['SERVICE_LOGIN']
-service_password = os.environ['SERVICE_PASSWORD']
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
 
@@ -16,10 +15,20 @@ stage_value = [
 global db_connect
 
 
-# Get cvv file with end of day data
-def get_file(stock_exchange_name, end_date: str = None) -> str:
-    downloaded_file = './download/eod-equities.csv'
-    return downloaded_file
+class CustomError(Exception):
+    pass
+
+# Get data from MOEX site
+def get_current_value_from_site(ts):
+    resp = requests.get('https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/'
+                        'securities.jsonp?iss.meta=off&iss.json=extended&callback=angular.callbacks._s'
+                        '&security_collection=3&sort_column=SHORTNAME&sort_order=asc&lang=ru&_=' + ts)
+    if resp:
+        resp_text = resp.text.replace('angular.callbacks._s(', '').replace(')', '')
+        return (json.loads(resp_text)[1])['marketdata']
+
+    else:
+        raise CustomError('Unsuccessful request code received :' + str(resp.status_code))
 
 
 def connect():
@@ -33,37 +42,23 @@ def connect():
         logging.info('DB connection Error : ' + str(ex))
 
 
-def insert_to_db_table(file_name, stock_exchange):
-    try:
-        with open(file_name, newline='', encoding="cp1251", errors='ignore') as f:
-            rows = csv.DictReader(f, delimiter=';', quotechar='|')
-            for row in rows:
-                if db_connect:
-                    if row['BOARDID'] == 'TQBR' and int(row['VOLUME']) > 0:
-                        date_rw = datetime.strptime(row['TRADEDATE'], '%d.%m.%Y').strftime('%d-%b-%Y')
+def insert_to_db_table(stock_exchange):
 
-                        query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
-                                (stock_exchange, row['SECID'], date_rw, float(row['OPEN'].replace(',','.')),
-                                 float(row['HIGH'].replace(',','.')), float(row['LOW'].replace(',','.')),
-                                 float(row['CLOSE'].replace(',','.')), float(row['VOLUME'].replace(',','.')))
-                        query_2 = "INSERT INTO %s_DICT VALUES ('%s', '%s')" % \
-                                (stock_exchange, row['SECID'], row['SHORTNAME'])
+    ts = int(datetime.now().timestamp() * 1000)
+    rows = get_current_value_from_site(str(ts))
 
-                        print(query_2)
+    for row in rows:
+        if db_connect:
+            # date_rw = datetime.strptime(row['TRADEDATE'], '%d.%m.%Y').strftime('%d-%b-%Y')
+            date_rw = '04-JUN-2021'
+            if row['VALTODAY'] > 0:
+                query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
+                          (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
+                           row['VALTODAY'])
 
-                        cursor = db_connect.cursor()
-                        cursor.execute(query_1)
-                        db_connect.commit()
-            f.close()
-
-    except FileNotFoundError:
-        logging.info("Can't read received file : " + file_name)
-
-    except cx_Oracle.Error as ex:
-        logging.info('DB Error : ' + str(ex))
-
-    except Exception as ex:
-        print(ex)
+                cursor = db_connect.cursor()
+                cursor.execute(query_1)
+                db_connect.commit()
 
 
 if __name__ == '__main__':
@@ -73,14 +68,11 @@ if __name__ == '__main__':
     for stock_exchange_name in ['MOEX']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
-            while True:
-                received_file = get_file(stock_exchange_name)
-                if "".__eq__(received_file):
-                    print('Unsuccessful result')
-                    logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
-                else:
-                    insert_to_db_table(received_file, stock_exchange_name)
-                    #os.remove(received_file)
-                    break
+            insert_to_db_table(stock_exchange_name)
+            logging.info('----------------- Data loaded successfully ------------------')
+
+        except cx_Oracle.Error as ex:
+            logging.info('DB Error : ' + str(ex))
+
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))

@@ -1,24 +1,34 @@
 import os
-import csv
 from datetime import datetime
+import requests
+import json
 
-__fileDir = os.path.dirname(os.path.abspath(__file__))
+
+class CustomError(Exception):
+    pass
 
 
-def pars_micex_file(file_name):
-    try:
-        with open(file_name, newline='', encoding="cp1251", errors='ignore') as f:
+def get_current_value_from_site(ts):
 
-            rows = csv.DictReader(f, delimiter=';', quotechar='|')
-            for row in rows:
+    resp = requests.get('https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/'
+                        'securities.jsonp?iss.meta=off&iss.json=extended&callback=angular.callbacks._s'
+                        '&security_collection=3&sort_column=SHORTNAME&sort_order=asc&lang=ru&_=' + ts)
+    if resp:
+        resp_text = resp.text.replace('angular.callbacks._s(', '').replace(')', '')
+        return (json.loads(resp_text)[1])['marketdata']
 
-                if row['SECID'] != '':
-                    print(row['SECID'] + ', ' + row['SHORTNAME'])
-    except Exception as ex:
-        print('Exception : ')
-        input(ex)
+    else:
+        raise CustomError('Unsuccessful request code received :' + str(resp.status_code))
+
 
 
 if __name__ == '__main__':
-    print(__fileDir)
-    pars_micex_file('./download/securities_stock_shares_all.csv')
+    ts = int(datetime.now().timestamp()*1000)
+    #ts = 1622753527
+    rows = get_current_value_from_site(str(ts))
+    for row in rows:
+        print(row)
+        input(row['SECID'] + ', ' + str(row['OPEN']) + ', ' + str(row['HIGH']) +', ' + str(row['LOW']) + ', ' + str(row['LAST'])
+              +', '+str(row['VALTODAY']))
+
+
