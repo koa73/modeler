@@ -92,7 +92,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr):
         logging.info("Can't insert : " + query)
 
     except cx_Oracle.Error as ex:
-        logging.info('DB Error : '+str(ex))
+        logging.info('DB Error : '+str(ex) + query)
 
 
 if __name__ == '__main__':
@@ -118,10 +118,9 @@ if __name__ == '__main__':
                     print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw, y_predicted))
                     insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0])
                 elif y_predicted[2] > 0:
-                    print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw,
-                                                                                    y_predicted))
+                    print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw,                                                                                    y_predicted))
                     insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
         except Exception as ex:
-            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
+            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex) + ' : ' )
 
 

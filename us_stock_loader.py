@@ -127,7 +127,7 @@ def insert_to_db_table(file_name, stock_exchange):
 
     try:
         with open(file_name, newline='') as f:
-            rows = csv.DictReader(f, delimiter=',', quotechar='|')
+            rows = csv.DictReader(f, delimiter=';', quotechar='|')
             for row in rows:
                 if db_connect:
                     query = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
@@ -153,8 +153,8 @@ if __name__ == '__main__':
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
-                received_file = get_file(stock_exchange_name, '06/01/2021')
-                #received_file = get_file(stock_exchange_name)
+                #received_file = get_file(stock_exchange_name, '06/01/2021')
+                received_file = get_file(stock_exchange_name)
                 if "".__eq__(received_file):
                     print('Unsuccessful result')
                     logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')

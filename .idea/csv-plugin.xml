@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/download/eod-equities.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/download/securities_stock_shares_all.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models/archive/archive_DB.csv">
           <value>
             <Attribute>
