@@ -166,8 +166,7 @@ if __name__ == '__main__':
                     print('Unsuccessful result')
                     logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
                 else:
-                    #insert_to_db_table(received_file, stock_exchange_name)
-                    input('Ready')
+                    insert_to_db_table(received_file, stock_exchange_name)
                     os.remove(received_file)
                     break
         except Exception as ex:
