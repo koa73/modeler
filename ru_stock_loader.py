@@ -4,6 +4,7 @@ import os
 import cx_Oracle
 import requests
 import json
+from pathlib import Path
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
@@ -62,7 +63,7 @@ def insert_to_db_table(stock_exchange):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='/var/log/'+Path(__file__).stem+'.log',
                         level=logging.INFO)
     db_connect = connect()
     for stock_exchange_name in ['MOEX']:

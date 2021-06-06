@@ -1,9 +1,11 @@
 import logging
+import sys
 import time
 import os
 import cx_Oracle
 import csv
 
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
@@ -20,6 +22,7 @@ stage_value = [
     'Download button was clicked']
 
 global db_connect
+
 
 def wait_for_downloads(download_path):
 
@@ -47,7 +50,8 @@ def wait_for_downloads(download_path):
 def get_file(stock_exchange_name,  end_date:str = None) -> str:
 
     url_path = 'http://www.eoddata.com/products/services.aspx'
-    download_path = '/home/oleg/PycharmProjects/modeler/download'
+    download_path = '/dev/shm'
+        #'/home/oleg/PycharmProjects/modeler/download'
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
@@ -56,7 +60,9 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    driver = webdriver.Chrome(options=options)
+    #driver = webdriver.Chrome(options=options)
+    driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
+                              desired_capabilities=options.to_capabilities())
     stage = 0  # Login page loaded
 
     try:
@@ -69,6 +75,7 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
         driver.get(url_path)
         login_form = driver.find_element_by_id('aspnetForm')
 
+        print('---1')
         if login_form is not None:
 
             driver.find_element_by_id('ctl00_cph1_ls1_txtEmail').send_keys(service_login)
@@ -104,7 +111,7 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
             return downloaded_file
 
         else:
-            logging.info('Unsuccessful result')
+            logging.info('--> Unsuccessful result')
 
     except Exception as ex:
         logging.info('Cancelled on stage : "' + stage_value[stage] + '", reason : ' + str(ex))
@@ -159,7 +166,8 @@ if __name__ == '__main__':
                     print('Unsuccessful result')
                     logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
                 else:
-                    insert_to_db_table(received_file, stock_exchange_name)
+                    #insert_to_db_table(received_file, stock_exchange_name)
+                    input('Ready')
                     os.remove(received_file)
                     break
         except Exception as ex:
