@@ -59,11 +59,11 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    driver = webdriver.Chrome(options=options)
-    '''
+    #driver = webdriver.Chrome(options=options)
+
     driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
                               desired_capabilities=options.to_capabilities())
-    '''
+
     stage = 0  # Login page loaded
 
     try:
@@ -144,7 +144,7 @@ def insert_to_db_table(file_name, stock_exchange):
                     print(query)
                     #cursor = db_connect.cursor()
                     #cursor.execute(query)
-                    db_connect.commit()
+                    #db_connect.commit()
             f.close()
 
     except FileNotFoundError:
@@ -155,7 +155,7 @@ def insert_to_db_table(file_name, stock_exchange):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='/var/log/'+Path(__file__).stem+'.log',
                         level=logging.INFO)
     db_connect = connect()
     for stock_exchange_name in ['NYSE']:
