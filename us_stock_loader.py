@@ -58,11 +58,11 @@ def get_web_driver():
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    # driver = webdriver.Chrome(options=options)
-
+    return  webdriver.Chrome(options=options)
+    '''
     return webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
                               desired_capabilities=options.to_capabilities())
-
+                              '''
 
 # Get cvv file with end of day data
 def get_file(driver, stock_exchange_name,  end_date:str = None) -> str:
@@ -75,6 +75,10 @@ def get_file(driver, stock_exchange_name,  end_date:str = None) -> str:
             'NYSE': "New York Stock Exchange",
             'NASDAQ': "NASDAQ Stock Exchange"
         }
+
+        print(download_path)
+        input (url_path)
+
 
         driver.get(url_path)
         login_form = driver.find_element_by_id('aspnetForm')
@@ -158,11 +162,11 @@ def insert_to_db_table(file_name, stock_exchange):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='/var/log/'+Path(__file__).stem+'.log',
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='./'+Path(__file__).stem+'.log',
                         level=logging.INFO)
     db_connect = connect()
     driver = get_web_driver()
-    for stock_exchange_name in ['NYSE']:
+    for stock_exchange_name in ['NYSE', 'NASDAQ']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
@@ -178,5 +182,6 @@ if __name__ == '__main__':
                     break
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
-
+        finally:
+            driver.close()
 
