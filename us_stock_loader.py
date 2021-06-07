@@ -58,11 +58,11 @@ def get_web_driver():
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    return  webdriver.Chrome(options=options)
-    '''
+    #return  webdriver.Chrome(options=options)
+
     return webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
                               desired_capabilities=options.to_capabilities())
-                              '''
+
 
 # Get cvv file with end of day data
 def get_file(driver, stock_exchange_name,  end_date:str = None) -> str:
