@@ -17,6 +17,9 @@ service_password = os.environ['SERVICE_PASSWORD']
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
 
+download_path = '/dev/shm'   # '/home/oleg/PycharmProjects/modeler/download'
+url_path = 'http://www.eoddata.com/products/services.aspx'
+
 stage_value = [
     'Login page loaded', 'Logged to site', 'Download form found', 'Download parameters were setted',
     'Download button was clicked']
@@ -46,11 +49,7 @@ def wait_for_downloads(download_path):
         return download_path + '/' + file.replace(".crdownload", "")
 
 
-# Get cvv file with end of day data
-def get_file(stock_exchange_name,  end_date:str = None) -> str:
-
-    url_path = 'http://www.eoddata.com/products/services.aspx'
-    download_path = '/home/oleg/PycharmProjects/modeler/download'
+def get_web_driver():
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
@@ -59,10 +58,14 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    #driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome(options=options)
 
-    driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
+    return webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
                               desired_capabilities=options.to_capabilities())
+
+
+# Get cvv file with end of day data
+def get_file(driver, stock_exchange_name,  end_date:str = None) -> str:
 
     stage = 0  # Login page loaded
 
@@ -158,12 +161,13 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='/var/log/'+Path(__file__).stem+'.log',
                         level=logging.INFO)
     db_connect = connect()
+    driver = get_web_driver()
     for stock_exchange_name in ['NYSE']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
-                #received_file = get_file(stock_exchange_name, '06/01/2021')
-                received_file = get_file(stock_exchange_name)
+                #received_file = get_file(driver, stock_exchange_name, '06/01/2021')
+                received_file = get_file(driver, stock_exchange_name)
                 #received_file = './download/'+stock_exchange_name+'_20210604.csv'
                 if "".__eq__(received_file):
                     print('Unsuccessful result')
