@@ -50,8 +50,7 @@ def wait_for_downloads(download_path):
 def get_file(stock_exchange_name,  end_date:str = None) -> str:
 
     url_path = 'http://www.eoddata.com/products/services.aspx'
-    download_path = '/dev/shm'
-        #'/home/oleg/PycharmProjects/modeler/download'
+    download_path = '/home/oleg/PycharmProjects/modeler/download'
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
@@ -60,9 +59,11 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    #driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=options)
+    '''
     driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
                               desired_capabilities=options.to_capabilities())
+    '''
     stage = 0  # Login page loaded
 
     try:
@@ -75,7 +76,6 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
         driver.get(url_path)
         login_form = driver.find_element_by_id('aspnetForm')
 
-        print('---1')
         if login_form is not None:
 
             driver.find_element_by_id('ctl00_cph1_ls1_txtEmail').send_keys(service_login)
@@ -134,14 +134,16 @@ def insert_to_db_table(file_name, stock_exchange):
 
     try:
         with open(file_name, newline='') as f:
-            rows = csv.DictReader(f, delimiter=';', quotechar='|')
+            rows = csv.DictReader(f, delimiter=',', quotechar='|')
             for row in rows:
                 if db_connect:
                     query = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
                             (stock_exchange, row['Symbol'], row['Date'], float(row['Open']), float(row['High']),
                              float(row['Low']), float(row['Close']), float(row['Volume']))
-                    cursor = db_connect.cursor()
-                    cursor.execute(query)
+
+                    print(query)
+                    #cursor = db_connect.cursor()
+                    #cursor.execute(query)
                     db_connect.commit()
             f.close()
 
@@ -156,12 +158,13 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
     db_connect = connect()
-    for stock_exchange_name in ['NYSE', 'NASDAQ']:
+    for stock_exchange_name in ['NYSE']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
                 #received_file = get_file(stock_exchange_name, '06/01/2021')
                 received_file = get_file(stock_exchange_name)
+                #received_file = './download/'+stock_exchange_name+'_20210604.csv'
                 if "".__eq__(received_file):
                     print('Unsuccessful result')
                     logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
