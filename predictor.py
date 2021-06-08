@@ -76,7 +76,7 @@ def get_check_data(json_row):
         ]
         prepared_data.append(calc_row)
 
-    return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24)
+    return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24), row['close'][-1]
 
 
 def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr):
@@ -104,21 +104,24 @@ if __name__ == '__main__':
     model = data.model_loader(file_name, source_path)
 
     for stock_exchange_name in ['NYSE', 'NASDAQ']:
+    #for stock_exchange_name in ['MOEX']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' ------------------------------')
             print('----------------------------------- ' + stock_exchange_name + ' ----------------------------')
             rows = get_data_from_table(stock_exchange_name)
             for json_row in rows:
                 try:
-                    symbol, date_rw, check_data = get_check_data(json_row)
+                    symbol, date_rw, check_data, last_cost = get_check_data(json_row)
                 except Exception as ex:
                     continue
                 y_predicted = model.predict([check_data])[0]
                 if y_predicted[0] > 0:
-                    print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw, y_predicted))
+                    print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
+                          .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
                     insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0])
                 elif y_predicted[2] > 0:
-                    print("Stock symbol {0} \t at date {1} found signal {2}".format(symbol.rstrip(), date_rw,                                                                                    y_predicted))
+                   # print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
+                   #       .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
                     insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex) + ' : ' )
