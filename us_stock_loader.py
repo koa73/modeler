@@ -1,5 +1,4 @@
 import logging
-import sys
 import time
 import os
 import cx_Oracle
@@ -17,7 +16,7 @@ service_password = os.environ['SERVICE_PASSWORD']
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
 
-download_path = '/dev/shm'   # '/home/oleg/PycharmProjects/modeler/download'
+download_path = '/home/oleg/PycharmProjects/modeler/download'
 url_path = 'http://www.eoddata.com/products/services.aspx'
 
 stage_value = [
@@ -48,8 +47,8 @@ def wait_for_downloads(download_path):
     else:
         return download_path + '/' + file.replace(".crdownload", "")
 
-
-def get_web_driver():
+# Get cvv file with end of day data
+def get_file(stock_exchange_name,  end_date:str = None) -> str:
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-notifications')
@@ -58,14 +57,7 @@ def get_web_driver():
     options.add_argument('--no-sandbox')
     options.add_argument("window-size=1920,1080")
     options.add_argument("--blink-settings=imagesEnabled=false")
-    #return  webdriver.Chrome(options=options)
-
-    return webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
-                              desired_capabilities=options.to_capabilities())
-
-
-# Get cvv file with end of day data
-def get_file(driver, stock_exchange_name,  end_date:str = None) -> str:
+    driver = webdriver.Chrome(options=options)
 
     stage = 0  # Login page loaded
 
@@ -75,10 +67,6 @@ def get_file(driver, stock_exchange_name,  end_date:str = None) -> str:
             'NYSE': "New York Stock Exchange",
             'NASDAQ': "NASDAQ Stock Exchange"
         }
-
-        print(download_path)
-        input (url_path)
-
 
         driver.get(url_path)
         login_form = driver.find_element_by_id('aspnetForm')
@@ -149,9 +137,9 @@ def insert_to_db_table(file_name, stock_exchange):
                              float(row['Low']), float(row['Close']), float(row['Volume']))
 
                     print(query)
-                    #cursor = db_connect.cursor()
-                    #cursor.execute(query)
-                    #db_connect.commit()
+                    cursor = db_connect.cursor()
+                    cursor.execute(query)
+                    db_connect.commit()
             f.close()
 
     except FileNotFoundError:
@@ -165,13 +153,12 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='./'+Path(__file__).stem+'.log',
                         level=logging.INFO)
     db_connect = connect()
-    driver = get_web_driver()
     for stock_exchange_name in ['NYSE', 'NASDAQ']:
         try:
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
                 #received_file = get_file(driver, stock_exchange_name, '06/01/2021')
-                received_file = get_file(driver, stock_exchange_name)
+                received_file = get_file(stock_exchange_name)
                 #received_file = './download/'+stock_exchange_name+'_20210604.csv'
                 if "".__eq__(received_file):
                     print('Unsuccessful result')
@@ -182,6 +169,5 @@ if __name__ == '__main__':
                     break
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
-        finally:
-            driver.close()
+            exit(1)
 

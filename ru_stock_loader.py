@@ -21,14 +21,23 @@ class CustomError(Exception):
 
 # Get data from MOEX site
 def get_current_value_from_site(ts):
+    '''
     resp = requests.get('https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/'
                         'securities.jsonp?iss.meta=off&iss.json=extended&callback=angular.callbacks._s'
                         '&security_collection=3&sort_column=SHORTNAME&sort_order=asc&lang=ru&_=' + ts)
+    '''
+    resp = requests.get('https://iss.moex.com/iss/history/engines/stock/markets/shares/boardgroups/57/securities.jsonp?' \
+    'security_collection=3&date=2021-06-03&start=240&limit=20' \
+    '&iss.meta=off&iss.json=extended&callback=angular.callbacks._2c' \
+    '&sort_column=VALUE&sort_order=desc&lang=ru&_='+ts)
     if resp:
-        resp_text = resp.text.replace('angular.callbacks._s(', '').replace(')', '')
-        return (json.loads(resp_text)[1])['marketdata']
+        #resp_text = resp.text.replace('angular.callbacks._s(', '').replace(')', '')
+        resp_text = resp.text.replace('angular.callbacks._2c(', '').replace(')', '')
+        #return (json.loads(resp_text)[1])['marketdata']
+        return (json.loads(resp_text)[1])['history']
 
     else:
+        print(2)
         raise CustomError('Unsuccessful request code received :' + str(resp.status_code))
 
 
@@ -51,19 +60,20 @@ def insert_to_db_table(stock_exchange):
     for row in rows:
         if db_connect:
             # date_rw = datetime.strptime(row['TRADEDATE'], '%d.%m.%Y').strftime('%d-%b-%Y')
-            #date_rw = '04-JUN-2021'
-            date_rw = datetime.today().strftime('%d-%b-%Y')
-            if row['VALTODAY'] > 0:
+            date_rw = '03-JUN-2021'
+            #date_rw = datetime.today().strftime('%d-%b-%Y')
+            if row['VALUE'] > 0:
                 query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
-                          (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
-                           row['VALTODAY'])
+                          (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['CLOSE'],
+                           row['VALUE'])
+                print(query_1)
                 cursor = db_connect.cursor()
                 cursor.execute(query_1)
                 db_connect.commit()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='/var/log/'+Path(__file__).stem+'.log',
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
     db_connect = connect()
     for stock_exchange_name in ['MOEX']:
