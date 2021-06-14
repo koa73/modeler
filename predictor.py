@@ -2,6 +2,7 @@ import logging
 import os
 import cx_Oracle
 import json
+import requests
 import numpy as np
 from decimal import Decimal as D, ROUND_DOWN
 import modelMaker as d
@@ -11,6 +12,8 @@ data = d.ModelMaker()
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
+bot_url = 'http://localhost:8080/rest/data'
+min_pwr_value = 5
 
 global db_connect
 # Число знаков в расчетных значениях
@@ -42,14 +45,15 @@ def get_data_from_table(stock_exchange):
 
     try:
         if db_connect:
-            query = "SELECT JSON_OBJECT(KEY 'symbol' VALUE trim(symbol), "\
+            query = "SELECT aa FROM (SELECT JSON_OBJECT(KEY 'symbol' VALUE trim(symbol), "\
                     " KEY 'date' VALUE to_char(max(date_rw), 'dd/mm/yyyy')," \
                     " KEY 'open' VALUE JSON_ARRAYAGG( open ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'high' VALUE JSON_ARRAYAGG( high ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'low' VALUE JSON_ARRAYAGG( low ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'close' VALUE JSON_ARRAYAGG( close ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
-                    " KEY 'volume' VALUE JSON_ARRAYAGG( volume ORDER BY date_rw ASC RETURNING VARCHAR2(100)))" \
-                    " FROM " + stock_exchange + "_STOCKS GROUP BY symbol"
+                    " KEY 'volume' VALUE JSON_ARRAYAGG( volume ORDER BY date_rw ASC RETURNING VARCHAR2(100))) aa," \
+                    " max(date_rw) ab FROM " + stock_exchange + "_STOCKS GROUP BY symbol) " \
+                    "WHERE ab = (SELECT MAX(b.date_rw) FROM " + stock_exchange + "_STOCKS b)"
             cursor = db_connect.cursor()
             cursor.execute(query)
 
@@ -108,6 +112,16 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr)->str:
             return ''
 
 
+def send_data_to_bot(d):
+    try:
+        response = requests.post(bot_url, json=d, timeout=5, headers={"Content-Type":"application/json"})
+        response.raise_for_status()
+        # Code here will only run if the request is successful
+    except Exception as ex:
+        logging.info("Can't sent data to bot : " + ex)
+        exit(1)
+
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
@@ -131,24 +145,31 @@ if __name__ == '__main__':
                     continue
                 y_predicted = model.predict([check_data])[0]
                 if y_predicted[0] > 0:
+                    '''
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
                           .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
-                    descr = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0])
-                    data_set['UP'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[0]),
-                                           'price': str(last_cost), 'discr': descr})
-                elif y_predicted[2] > 0:
-                   # print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
-                   #       .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
-                   descr = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
+                    '''
+                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0])
 
-                   data_set['DOWN'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2]),
-                                          'price': str(last_cost), 'discr': descr})
+                    if y_predicted[0] > min_pwr_value:
+                        data_set['UP'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[0]),
+                                               'price': str(last_cost), 'discr': symbol_description})
+                elif y_predicted[2] > 0:
+                    '''
+                    print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
+                          .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
+                    '''
+                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
+                    if y_predicted[2] > min_pwr_value:
+                        data_set['DOWN'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2]),
+                                                 'price': str(last_cost), 'discr': symbol_description})
 
             if len(data_set['UP']) > 0 or len(data_set['DOWN']) > 0 :
                 data["stock_exchange"] = stock_exchange_name
+                data_set['DOWN'] = sorted(data_set['DOWN'], key=lambda k: k['pwr'], reverse=True)
+                data_set['UP'] = sorted(data_set['UP'], key=lambda k: k['pwr'], reverse=True)
                 data["data"] = data_set
-                json_data = json.dumps(data)
-                print(json_data)
+                send_data_to_bot(data)
 
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex) + ' : ' )
