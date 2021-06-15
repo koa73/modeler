@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import cx_Oracle
 import json
 import requests
@@ -7,6 +8,12 @@ import numpy as np
 from decimal import Decimal as D, ROUND_DOWN
 import modelMaker as d
 
+
+if len(sys.argv) < 2:
+    print("Argument not found ")
+    exit(0)
+else:
+    array_arg = sys.argv[1].split(',')
 
 data = d.ModelMaker()
 
@@ -123,6 +130,7 @@ def send_data_to_bot(d):
 
 
 if __name__ == '__main__':
+
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
                         level=logging.INFO)
     # Connect to DB
@@ -130,7 +138,7 @@ if __name__ == '__main__':
     # Load AI model
     model = data.model_loader(file_name, source_path)
     data = {}
-    for stock_exchange_name in ['NYSE', 'NASDAQ']:
+    for stock_exchange_name in array_arg:
     #for stock_exchange_name in ['MOEX']:
         data = {}
         try:
@@ -161,7 +169,7 @@ if __name__ == '__main__':
                     '''
                     symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
                     if y_predicted[2] > min_pwr_value:
-                        data_set['DOWN'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2]),
+                        data_set['DOWN'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2])*-1,
                                                  'price': str(last_cost), 'discr': symbol_description})
 
             if len(data_set['UP']) > 0 or len(data_set['DOWN']) > 0 :
