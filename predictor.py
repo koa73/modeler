@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
             if len(data_set['UP']) > 0 or len(data_set['DOWN']) > 0 :
                 data["stock_exchange"] = stock_exchange_name
-                data_set['DOWN'] = sorted(data_set['DOWN'], key=lambda k: k['pwr'], reverse=True)
+                data_set['DOWN'] = sorted(data_set['DOWN'], key=lambda k: k['pwr'])
                 data_set['UP'] = sorted(data_set['UP'], key=lambda k: k['pwr'], reverse=True)
                 data["data"] = data_set
                 send_data_to_bot(data)
