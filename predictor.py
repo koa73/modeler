@@ -8,7 +8,6 @@ import numpy as np
 from decimal import Decimal as D, ROUND_DOWN
 import modelMaker as d
 
-
 if len(sys.argv) < 2:
     print("Argument not found ")
     exit(0)
@@ -40,19 +39,18 @@ def change_percent(base, curr):
 def connect():
     try:
         cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
-                                 config_dir="/usr/local/src/instantclient_21_1/network/admin")
+                                     config_dir="/usr/local/src/instantclient_21_1/network/admin")
         connection = cx_Oracle.connect(oracle_login, oracle_password, "db202105041827_tp")
         return connection
 
     except cx_Oracle.Error as ex:
-        logging.info('DB connection Error : '+str(ex))
+        logging.info('DB connection Error : ' + str(ex))
 
 
 def get_data_from_table(stock_exchange):
-
     try:
         if db_connect:
-            query = "SELECT aa FROM (SELECT JSON_OBJECT(KEY 'symbol' VALUE trim(symbol), "\
+            query = "SELECT aa FROM (SELECT JSON_OBJECT(KEY 'symbol' VALUE trim(symbol), " \
                     " KEY 'date' VALUE to_char(max(date_rw), 'dd/mm/yyyy')," \
                     " KEY 'open' VALUE JSON_ARRAYAGG( open ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'high' VALUE JSON_ARRAYAGG( high ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
@@ -60,14 +58,14 @@ def get_data_from_table(stock_exchange):
                     " KEY 'close' VALUE JSON_ARRAYAGG( close ORDER BY date_rw ASC RETURNING VARCHAR2(100))," \
                     " KEY 'volume' VALUE JSON_ARRAYAGG( volume ORDER BY date_rw ASC RETURNING VARCHAR2(100))) aa," \
                     " max(date_rw) ab FROM " + stock_exchange + "_STOCKS GROUP BY symbol) " \
-                    "WHERE ab = (SELECT MAX(b.date_rw) FROM " + stock_exchange + "_STOCKS b)"
+                                                                "WHERE ab = (SELECT MAX(b.date_rw) FROM " + stock_exchange + "_STOCKS b)"
             cursor = db_connect.cursor()
             cursor.execute(query)
 
             return cursor.fetchall()
 
     except cx_Oracle.Error as ex:
-        logging.info('DB Error : '+str(ex))
+        logging.info('DB Error : ' + str(ex))
 
 
 def get_check_data(json_row):
@@ -91,7 +89,7 @@ def get_check_data(json_row):
     return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24), row['close'][-1]
 
 
-def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr)->str:
+def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) -> str:
     query = ''
     descr = [[]]
     try:
@@ -101,8 +99,8 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr)->str:
         cursor.execute(query)
         descr = cursor.fetchall()
 
-        query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d)" %\
-              (symbol, stock_exchange_name, date_rw, pwr)
+        query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %d)" % \
+                (symbol, stock_exchange_name, date_rw, pwr, last_cost)
         cursor.execute(query)
         db_connect.commit()
 
@@ -110,7 +108,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr)->str:
         logging.info("Can't insert : " + query)
 
     except cx_Oracle.Error as ex:
-        logging.info('DB Error : '+str(ex) + query)
+        logging.info('DB Error : ' + str(ex) + query)
 
     finally:
         if len(descr) > 0:
@@ -121,7 +119,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr)->str:
 
 def send_data_to_bot(d):
     try:
-        response = requests.post(bot_url, json=d, timeout=5, headers={"Content-Type":"application/json"})
+        response = requests.post(bot_url, json=d, timeout=5, headers={"Content-Type": "application/json"})
         response.raise_for_status()
         # Code here will only run if the request is successful
     except Exception as ex:
@@ -139,7 +137,7 @@ if __name__ == '__main__':
     model = data.model_loader(file_name, source_path)
     data = {}
     for stock_exchange_name in array_arg:
-    #for stock_exchange_name in ['MOEX']:
+        # ё  for stock_exchange_name in ['MOEX']:
         data = {}
         try:
             data_set = {'UP': [], 'DOWN': []}
@@ -157,7 +155,8 @@ if __name__ == '__main__':
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
                           .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
                     '''
-                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0])
+                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0],
+                                                             last_cost)
 
                     if y_predicted[0] > min_pwr_value:
                         data_set['UP'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[0]),
@@ -167,12 +166,15 @@ if __name__ == '__main__':
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
                           .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
                     '''
-                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2]*-1)
-                    if y_predicted[2] > min_pwr_value:
-                        data_set['DOWN'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2])*-1,
-                                                 'price': str(last_cost), 'discr': symbol_description})
+                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2] * -1,
+                                                             last_cost)
 
-            if len(data_set['UP']) > 0 or len(data_set['DOWN']) > 0 :
+                    if y_predicted[2] > min_pwr_value:
+                        data_set['DOWN'].append(
+                            {'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2]) * -1,
+                             'price': str(last_cost), 'discr': symbol_description})
+
+            if len(data_set['UP']) > 0 or len(data_set['DOWN']) > 0:
                 data["stock_exchange"] = stock_exchange_name
                 data_set['DOWN'] = sorted(data_set['DOWN'], key=lambda k: k['pwr'])
                 data_set['UP'] = sorted(data_set['UP'], key=lambda k: k['pwr'], reverse=True)
@@ -180,7 +182,5 @@ if __name__ == '__main__':
                 send_data_to_bot(data)
 
         except Exception as ex:
-            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex) + ' : ' )
+            logging.info('>> ' + stock_exchange_name + ' : ' + ex + ' : ')
             exit(1)
-
-
