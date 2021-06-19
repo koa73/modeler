@@ -102,6 +102,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) ->
 
         query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f)" % \
                 (symbol, stock_exchange_name, date_rw, pwr, last_cost)
+        input(query)
         cursor.execute(query)
         db_connect.commit()
 
@@ -140,7 +141,7 @@ if __name__ == '__main__':
     model = data.model_loader(file_name, source_path)
     data = {}
     #for stock_exchange_name in array_arg:
-    for stock_exchange_name in ['MOEX']:
+    for stock_exchange_name in ['NASDAQ']:
         data = {}
         try:
             data_set = {'UP': [], 'DOWN': []}
