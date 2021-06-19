@@ -5,6 +5,7 @@ import cx_Oracle
 import json
 import requests
 import numpy as np
+from pathlib import Path
 from decimal import Decimal as D, ROUND_DOWN
 import modelMaker as d
 
@@ -121,6 +122,8 @@ def send_data_to_bot(d):
     try:
         response = requests.post(bot_url, json=d, timeout=5, headers={"Content-Type": "application/json"})
         response.raise_for_status()
+        print(json.dumps(d))
+        logging.info('Data sent to bot successfuly. Status code : '+str(response.status_code))
         # Code here will only run if the request is successful
     except Exception as ex:
         logging.info("Can't sent data to bot : " + ex)
@@ -136,8 +139,8 @@ if __name__ == '__main__':
     # Load AI model
     model = data.model_loader(file_name, source_path)
     data = {}
-    for stock_exchange_name in array_arg:
-        # ё  for stock_exchange_name in ['MOEX']:
+    #for stock_exchange_name in array_arg:
+    for stock_exchange_name in ['MOEX']:
         data = {}
         try:
             data_set = {'UP': [], 'DOWN': []}

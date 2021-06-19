@@ -84,6 +84,8 @@ if __name__ == '__main__':
 
         except cx_Oracle.Error as ex:
             logging.info('DB Error : ' + str(ex))
+            exit(1)
 
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
+            exit(1)
