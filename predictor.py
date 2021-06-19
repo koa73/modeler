@@ -103,8 +103,8 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) ->
         descr = cursor.fetchall()
 
         query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f)" % \
-                (symbol, stock_exchange_name, date_rw, pwr, float(last_cost))
-        print(query)
+                (symbol, stock_exchange_name, date_rw, pwr, float(str(last_cost).replace('.',',')))
+        #print(query)
         cursor.execute(query)
         db_connect.commit()
 

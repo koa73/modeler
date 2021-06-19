@@ -136,7 +136,6 @@ def insert_to_db_table(file_name, stock_exchange):
                             (stock_exchange, row['Symbol'], row['Date'], float(row['Open']), float(row['High']),
                              float(row['Low']), float(row['Close']), float(row['Volume']))
 
-                    #print(query)
                     cursor = db_connect.cursor()
                     cursor.execute(query)
                     db_connect.commit()
