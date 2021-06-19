@@ -125,7 +125,7 @@ def send_data_to_bot(d):
     try:
         response = requests.post(bot_url, json=d, timeout=5, headers={"Content-Type": "application/json"})
         response.raise_for_status()
-        print(json.dumps(d))
+        #print(json.dumps(d))
         logging.info('Data sent to bot successfuly. Status code : '+str(response.status_code))
         # Code here will only run if the request is successful
     except Exception as ex:
