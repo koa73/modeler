@@ -19,15 +19,16 @@ data = d.ModelMaker()
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
-bot_url = 'http://localhost:8080/rest/data'
+bot_url = os.environ['BOT_URL']
+model_path = os.environ['MODEL_PATH']
+model_file_name = 'weights_b25_150_3'
 min_pwr_value = 5
 
 global db_connect
 # Число знаков в расчетных значениях
 __accuracy = '0.00001'
-log_file = __file__.replace('.py', '.log')
-source_path = '/models/archive/complex/best/'
-file_name = 'weights_b25_150_3'
+log_file = './'+Path(__file__).stem+'.log'
+
 
 
 def change_percent(base, curr):
@@ -139,7 +140,7 @@ if __name__ == '__main__':
     # Connect to DB
     db_connect = connect()
     # Load AI model
-    model = data.model_loader(file_name, source_path)
+    model = data.model_loader(model_file_name, model_path)
     data = {}
     for stock_exchange_name in array_arg:
     #for stock_exchange_name in ['NASDAQ']:
