@@ -25,6 +25,7 @@ min_pwr_value = 5
 global db_connect
 # Число знаков в расчетных значениях
 __accuracy = '0.00001'
+log_file = __file__.replace('.py', '.log')
 source_path = '/models/archive/complex/best/'
 file_name = 'weights_b25_150_3'
 
@@ -133,15 +134,15 @@ def send_data_to_bot(d):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=log_file,
                         level=logging.INFO)
     # Connect to DB
     db_connect = connect()
     # Load AI model
     model = data.model_loader(file_name, source_path)
     data = {}
-    #for stock_exchange_name in array_arg:
-    for stock_exchange_name in ['NASDAQ']:
+    for stock_exchange_name in array_arg:
+    #for stock_exchange_name in ['NASDAQ']:
         data = {}
         try:
             data_set = {'UP': [], 'DOWN': []}
