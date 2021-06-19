@@ -104,7 +104,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) ->
 
         query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f)" % \
                 (symbol, stock_exchange_name, date_rw, pwr, last_cost)
-        input(query)
+        print(query)
         cursor.execute(query)
         db_connect.commit()
 
