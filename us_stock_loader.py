@@ -118,7 +118,7 @@ def connect():
     try:
         cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
                                  config_dir="/usr/local/src/instantclient_21_1/network/admin")
-        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202105041827_tp")
+        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202106200141_tp")
         return connection
 
     except cx_Oracle.Error as ex:
