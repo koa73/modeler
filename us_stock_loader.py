@@ -152,22 +152,21 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='./'+Path(__file__).stem+'.log',
                         level=logging.INFO)
     db_connect = connect()
-    for i in ['21', '24', '25', '26']:
-        for stock_exchange_name in ['NYSE', 'NASDAQ']:
-            try:
-                logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
-                while True:
-                    # received_file = get_file(driver, stock_exchange_name, '06/01/2021')
-                    # received_file = get_file(stock_exchange_name)
-                    received_file = './download/' + stock_exchange_name + '_202105'+i+'.csv'
-                    if "".__eq__(received_file):
-                        print('Unsuccessful result')
-                        logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
-                    else:
-                        insert_to_db_table(received_file, stock_exchange_name)
-                        os.remove(received_file)
-                        break
-            except Exception as ex:
-                logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
-                exit(1)
+    for stock_exchange_name in ['NYSE', 'NASDAQ']:
+        try:
+            logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
+            while True:
+                # received_file = get_file(driver, stock_exchange_name, '06/01/2021')
+                # received_file = get_file(stock_exchange_name)
+                received_file = './download/' + stock_exchange_name + '_202105' + i + '.csv'
+                if "".__eq__(received_file):
+                    print('Unsuccessful result')
+                    logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
+                else:
+                    insert_to_db_table(received_file, stock_exchange_name)
+                    os.remove(received_file)
+                    break
+        except Exception as ex:
+            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
+            exit(1)
 
