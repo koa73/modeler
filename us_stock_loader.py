@@ -98,7 +98,11 @@ def get_file(stock_exchange_name,  end_date:str = None) -> str:
                 driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').send_keys(end_date)
 
             stage += 1  # Download button was clicked
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_btnDownload'))).click()
+            try:
+                WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_btnDownload'))).click()
+            except Exception as ex:
+                WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_btnDownload'))).click()
             time.sleep(1)
             downloaded_file = wait_for_downloads(download_path)
 
@@ -157,14 +161,14 @@ if __name__ == '__main__':
             logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
             while True:
                 # received_file = get_file(driver, stock_exchange_name, '06/01/2021')
-                # received_file = get_file(stock_exchange_name)
-                received_file = './download/' + stock_exchange_name + '_202105' + i + '.csv'
+                received_file = get_file(stock_exchange_name)
                 if "".__eq__(received_file):
                     print('Unsuccessful result')
                     logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
                 else:
                     insert_to_db_table(received_file, stock_exchange_name)
                     os.remove(received_file)
+                    logging.info('>> ' + stock_exchange_name + ' : Data download successfully completed.')
                     break
         except Exception as ex:
             logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
