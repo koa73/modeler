@@ -169,7 +169,8 @@ if __name__ == '__main__':
         ticker_list = get_tickers_from_db(stock_type_list[0])
         print(ticker_list)
 
-    bars = get_daily_bars(get_current_date(-4))
+    # Set date offset if necessary
+    bars = get_daily_bars(get_current_date())
     if len(bars) > 0:
         result_str = insert_to_db_table(bars)
         logging.info(result_str)
