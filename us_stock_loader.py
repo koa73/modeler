@@ -68,6 +68,7 @@ def insert_to_db_table(bars):
             return "Not good result. Was inserted " + str(count) + " rows."
     except cx_Oracle.Error as ex:
         logging.info('DB Error : ' + str(ex))
+        exit(1)
 
 
 # Get all tickers hat meet the condition (type & exchange)
@@ -168,10 +169,10 @@ if __name__ == '__main__':
         ticker_list = get_tickers_from_db(stock_type_list[0])
         print(ticker_list)
 
-
     bars = get_daily_bars(get_current_date(-4))
     if len(bars) > 0:
-        logging.info(insert_to_db_table(bars))
+        result_str = insert_to_db_table(bars)
+        logging.info(result_str)
     else:
         logging.info('>> Unsuccessful result. Bars data is empty')
         exit(1)
