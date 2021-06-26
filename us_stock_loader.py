@@ -9,6 +9,9 @@ from datetime import datetime, timedelta
 #
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+oracle_db = "db202106201548_tp"
+#oracle_db = "db202106200141_tp"
 api_key = os.environ['API_KEY']
 
 exchange_list = ['NYSE', 'NASDAQ', 'AMEX']
@@ -22,9 +25,8 @@ ticker_list = {}
 
 def connect():
     try:
-        cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
-                                     config_dir="/usr/local/src/instantclient_21_1/network/admin/clone_db")
-        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202106201548_tp")
+        cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1", config_dir=oracle_config_dir)
+        connection = cx_Oracle.connect(oracle_login, oracle_password, oracle_db)
         return connection
 
     except cx_Oracle.Error as ex:
