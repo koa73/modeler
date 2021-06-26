@@ -160,7 +160,7 @@ def get_current_date(offset=0):
 if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
-                        filename='./' + Path(__file__).stem + '.log',
+                        filename='./log/' + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
 
