@@ -1,176 +1,174 @@
-import logging
-import time
-import os
 import cx_Oracle
-import csv
-
+import logging
+import requests
+import os
 from pathlib import Path
-from selenium import webdriver
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+from datetime import datetime, timedelta
 
-service_login = os.environ['SERVICE_LOGIN']
-service_password = os.environ['SERVICE_PASSWORD']
+# TwelveDate test script for getting stocks list from exchanges
+#
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
+api_key = os.environ['API_KEY']
 
-download_path = '/home/oleg/PycharmProjects/modeler/download'
-url_path = 'http://www.eoddata.com/products/services.aspx'
+exchange_list = ['NYSE', 'NASDAQ', 'AMEX']
+exchange = {'NYSE': 'XNYS', 'NASDAQ': 'XNAS', 'AMEX': 'XASE'}
+# , 'NYSE ARCA':'ARCX'}
+exchange_key = dict((v, k) for k, v in exchange.items())
 
-stage_value = [
-    'Login page loaded', 'Logged to site', 'Download form found', 'Download parameters were setted',
-    'Download button was clicked']
-
-global db_connect
-
-
-def wait_for_downloads(download_path):
-
-    max_delay = 30
-    interval_delay = 0.5
-    total_delay = 0
-    file = ''
-    done = False
-    while not done and total_delay < max_delay:
-        files = [f for f in os.listdir(download_path) if f.endswith('.crdownload')]
-        if not files and len(file) > 1:
-            done = True
-        if files:
-            file = files[0]
-        time.sleep(interval_delay)
-        total_delay += interval_delay
-    if not done:
-        logging.error("File(s) couldn't be downloaded")
-        return ""
-    else:
-        return download_path + '/' + file.replace(".crdownload", "")
-
-# Get cvv file with end of day data
-def get_file(stock_exchange_name,  end_date:str = None) -> str:
-
-    options = webdriver.ChromeOptions()
-    options.add_argument('--disable-notifications')
-    options.add_experimental_option("prefs", {"download.default_directory": download_path})
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument("window-size=1920,1080")
-    options.add_argument("--blink-settings=imagesEnabled=false")
-    driver = webdriver.Chrome(options=options)
-
-    stage = 0  # Login page loaded
-
-    try:
-
-        stock_exchange_dict = {
-            'NYSE': "New York Stock Exchange",
-            'NASDAQ': "NASDAQ Stock Exchange"
-        }
-
-        driver.get(url_path)
-        login_form = driver.find_element_by_id('aspnetForm')
-
-        if login_form is not None:
-
-            driver.find_element_by_id('ctl00_cph1_ls1_txtEmail').send_keys(service_login)
-            driver.find_element_by_id('ctl00_cph1_ls1_txtPassword').send_keys(service_password)
-            driver.find_element_by_id('ctl00_cph1_ls1_btnLogin').click()
-
-            stage += 1  # Logged to site
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_ls1_lnkLogOut')))
-
-            driver.get(url_path)
-
-            stage += 1  # Download form found
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_cboExchange')))
-
-            stage += 1  # Download parameters were setted
-            Select(driver.find_element_by_id('ctl00_cph1_dd1_cboExchange')). \
-                select_by_visible_text(stock_exchange_dict[stock_exchange_name])
-            Select(driver.find_element_by_id('ctl00_cph1_dd1_cboDataFormat')).select_by_visible_text("Standard CSV")
-            Select(driver.find_element_by_id('ctl00_cph1_dd1_cboPeriod')).select_by_visible_text("End of Day")
-
-            if end_date is not None:
-                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').clear()
-                time.sleep(1)
-                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').click()
-                driver.find_element_by_id('ctl00_cph1_dd1_txtEndDate').send_keys(end_date)
-
-            stage += 1  # Download button was clicked
-            try:
-                WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_btnDownload'))).click()
-            except Exception as ex:
-                WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.ID, 'ctl00_cph1_dd1_btnDownload'))).click()
-            time.sleep(1)
-            downloaded_file = wait_for_downloads(download_path)
-
-            logging.info(stage_value[0])
-            return downloaded_file
-
-        else:
-            logging.info('--> Unsuccessful result')
-
-    except Exception as ex:
-        logging.info('Cancelled on stage : "' + stage_value[stage] + '", reason : ' + str(ex))
-
-    return ""
+stock_type_list = ['CS']
+ticker_list = {}
 
 
 def connect():
     try:
         cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
-                                 config_dir="/usr/local/src/instantclient_21_1/network/admin")
-        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202106200141_tp")
+                                     config_dir="/usr/local/src/instantclient_21_1/network/admin/clone_db")
+        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202106201548_tp")
         return connection
 
     except cx_Oracle.Error as ex:
-        logging.info('DB connection Error : '+str(ex))
+        print(ex)
+        logging.info('DB connection Error : ' + str(ex))
 
 
-def insert_to_db_table(file_name, stock_exchange):
+def insert_to_dictionary(exchange, ticker, name, type):
+    try:
+        if db_connect:
+            query = "INSERT INTO %s_DICT VALUES ('%s','%s','%s')" % \
+                    (exchange, ticker, name.replace("'", "''"), type)
+            cursor = db_connect.cursor()
+            cursor.execute(query)
+            db_connect.commit()
+            return True
+    except cx_Oracle.Error as ex:
+        return False
+        # logging.info('DB Error : '+str(ex))
+
+
+def insert_to_db_table(bars):
+    try:
+        count = 0
+        for row in bars:
+            if db_connect:
+                query = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
+                        (row['ex'], row['T'], datetime.fromtimestamp(row['t'] / 1000).strftime('%d-%b-%Y'), row['o'],
+                         row['h'], row['l'], row['c'], row['v'])
+
+                cursor = db_connect.cursor()
+                cursor.execute(query)
+                db_connect.commit()
+            count += 1
+
+        if len(bars) == count:
+            return "Successful complete. All " + str(count) + " was inserted to DB."
+        else:
+            return "Not good result. Was inserted " + str(count) + " rows."
+    except cx_Oracle.Error as ex:
+        logging.info('DB Error : ' + str(ex))
+
+
+# Get all tickers hat meet the condition (type & exchange)
+def get_tickers(exchange_name, type):
+    result = []
 
     try:
-        with open(file_name, newline='') as f:
-            rows = csv.DictReader(f, delimiter=',', quotechar='|')
-            for row in rows:
-                if db_connect:
-                    query = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
-                            (stock_exchange, row['Symbol'], row['Date'], float(row['Open']), float(row['High']),
-                             float(row['Low']), float(row['Close']), float(row['Volume']))
 
-                    cursor = db_connect.cursor()
-                    cursor.execute(query)
-                    db_connect.commit()
-            f.close()
+        url = 'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&type={type}' \
+              '&sort=ticker&order=asc&limit=1000&apiKey={key}&exchange={name}' \
+            .format(name=exchange[exchange_name], key=api_key, type=type)
 
-    except FileNotFoundError:
-        logging.info("Can't read received file : "+file_name)
+        while True:
+            r = requests.get(url)
+            data = r.json()
+            if data['status'] == 'OK':
+                result = result + data['results']
+                if 'next_url' in data:
+                    url = data['next_url'] + '&apiKey={key}'.format(key=api_key)
+                else:
+                    break
+
+        return result
+
+    except Exception as ex:
+        logging.info('>> Unsuccessful request of ticker list from service.')
+        return []
+
+
+# Prepare dictionary for tickers with link to exchange name
+def get_tickers_list():
+    result = {}
+    for stock_exchange_name in exchange_list:
+        for stock_type in stock_type_list:
+            output = get_tickers(stock_exchange_name, stock_type)
+            if len(output) == 0:
+                logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
+            count = 0
+            for row in output:
+                result[row['ticker']] = exchange_key[row['primary_exchange']]
+                if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'], row['type']):
+                    count += 1
+            logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
+    return result
+
+
+def get_tickers_from_db(type):
+    try:
+        if db_connect:
+            query = f"SELECT trim(a.symbol), 'NASDAQ' t from nasdaq_dict a WHERE type = '{type}' " \
+                    "UNION SELECT trim(b.symbol),'NYSE' FROM nyse_dict b WHERE type = '{type}' " \
+                    "UNION SELECT trim(c.symbol), 'AMEX' FROM amex_dict c WHERE type = '{type}'".format(type=type)
+
+            cursor = db_connect.cursor()
+            cursor.execute(query)
+
+            query_resp = cursor.fetchall()
+            result = {}
+            for row in query_resp:
+                result[row[0]]=row[1]
+            logging.info('Received ' + str(len(result)) + ' tickers from DB ')
+            return result
 
     except cx_Oracle.Error as ex:
-        logging.info('DB Error : '+str(ex))
+        logging.info('get_tickers_from_db : ' + str(ex))
+
+
+def get_daily_bars(date):
+    url = "https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/{date}?adjusted=true&apiKey={key}" \
+        .format(date=date, key=api_key)
+    r = requests.get(url)
+    data = r.json()
+    if data['status'] == 'OK':
+        result = []
+        for row in data['results']:
+            if row['T'] in ticker_list:
+                row['ex'] = ticker_list[row['T']]
+                result.append(row)
+        return result
+    else:
+        return []
+
+
+def get_current_date(offset=0):
+    return (datetime.today() + timedelta(offset)).strftime('%Y-%m-%d')
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename='./'+Path(__file__).stem+'.log',
+
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
+                        filename='./' + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
-    for stock_exchange_name in ['NYSE', 'NASDAQ']:
-        try:
-            logging.info('----------------- ' + stock_exchange_name + ' start download data ------------------')
-            while True:
-                # received_file = get_file(driver, stock_exchange_name, '06/01/2021')
-                received_file = get_file(stock_exchange_name)
-                if "".__eq__(received_file):
-                    print('Unsuccessful result')
-                    logging.info('>> ' + stock_exchange_name + ' Unsuccessful result')
-                else:
-                    insert_to_db_table(received_file, stock_exchange_name)
-                    os.remove(received_file)
-                    logging.info('>> ' + stock_exchange_name + ' : Data download successfully completed.')
-                    break
-        except Exception as ex:
-            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex))
-            exit(1)
 
+    ticker_list = get_tickers_list()
+    if len(ticker_list) == 0:
+        ticker_list = get_tickers_from_db(stock_type_list[0])
+        print(ticker_list)
+
+
+    bars = get_daily_bars(get_current_date(-1))
+    if len(bars) > 0:
+        logging.info(insert_to_db_table(bars))
+    else:
+        logging.info('>> Unsuccessful result. Bars data is empty')
+        exit(1)
