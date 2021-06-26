@@ -110,7 +110,8 @@ def get_tickers_list():
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
                 if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'], row['type']):
                     count += 1
-            logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
+            if count > 0:
+                logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
     return result
 
 
@@ -168,7 +169,7 @@ if __name__ == '__main__':
         print(ticker_list)
 
 
-    bars = get_daily_bars(get_current_date(-1))
+    bars = get_daily_bars(get_current_date(-4))
     if len(bars) > 0:
         logging.info(insert_to_db_table(bars))
     else:
