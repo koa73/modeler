@@ -100,14 +100,13 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) ->
     descr = [[]]
     try:
 
-        query = "SELECT a.descr FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" % symbol
+        query = "SELECT a.descr, a.type FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" % symbol
         cursor = db_connect.cursor()
         cursor.execute(query)
         descr = cursor.fetchall()
-
+        input(descr)
         query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f)" % \
                 (symbol, stock_exchange_name, date_rw, pwr, last_cost)
-        print(query)
         cursor.execute(query)
         db_connect.commit()
 
