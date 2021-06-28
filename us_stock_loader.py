@@ -147,6 +147,7 @@ def get_daily_bars(date):
     data = r.json()
     if data['status'] == 'OK':
         result = []
+        logging.info('%d bars received' % len(data['results']))
         for row in data['results']:
             if row['T'] in ticker_list:
                 row['ex'] = ticker_list[row['T']]
