@@ -109,9 +109,9 @@ def get_tickers_list():
             count = 0
             for row in output:
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
-                logging.info(row)
-                if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'], row['type']):
-                    count += 1
+                if type in row:
+                    if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'], row['type']):
+                        count += 1
             if count > 0:
                 logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
     return result
