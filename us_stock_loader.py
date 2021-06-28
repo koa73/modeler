@@ -145,10 +145,8 @@ def get_daily_bars(date):
         .format(date=date, key=api_key)
     r = requests.get(url)
     data = r.json()
-    print(data['status'])
-    if data['status'] == 'OK':
+    if data['status'] == 'OK' or data['status'] == 'DELAYED':
         result = []
-        logging.info('%d bars received' % len(data['results']))
         for row in data['results']:
             if row['T'] in ticker_list:
                 row['ex'] = ticker_list[row['T']]
@@ -173,7 +171,7 @@ if __name__ == '__main__':
     if len(ticker_list) == 0:
         ticker_list = get_tickers_from_db(stock_type_list[0])
 
-    logging.info('%d Tickers for getting data'%len(ticker_list))
+    #logging.info('%d Tickers for getting data'%len(ticker_list))
 
     # Set date offset if necessary
     bars = get_daily_bars(get_current_date())
