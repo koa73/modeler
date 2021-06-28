@@ -20,7 +20,7 @@ exchange = {'NYSE': 'XNYS', 'NASDAQ': 'XNAS', 'AMEX': 'XASE'}
 # , 'NYSE ARCA':'ARCX'}
 exchange_key = dict((v, k) for k, v in exchange.items())
 
-stock_type_list = ['CS']
+stock_type_list = ['']
 ticker_list = {}
 
 
@@ -77,7 +77,6 @@ def get_tickers(exchange_name, type):
     result = []
 
     try:
-
         url = 'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&type={type}' \
               '&sort=ticker&order=asc&limit=1000&apiKey={key}&exchange={name}' \
             .format(name=exchange[exchange_name], key=api_key, type=type)
@@ -171,6 +170,7 @@ if __name__ == '__main__':
         print(ticker_list)
 
     # Set date offset if necessary
+    """
     bars = get_daily_bars(get_current_date())
     if len(bars) > 0:
         result_str = insert_to_db_table(bars)
@@ -178,3 +178,4 @@ if __name__ == '__main__':
     else:
         logging.info('>> Unsuccessful result. Bars data is empty')
         exit(1)
+    """
