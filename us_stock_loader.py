@@ -14,6 +14,7 @@ oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
 #oracle_db = "db202106201548_tp"
 oracle_db = "db202106200141_tp"
 api_key = os.environ['API_KEY']
+log_path = os.environ['LOG_PATH']
 
 exchange_list = ['NYSE', 'NASDAQ', 'AMEX']
 exchange = {'NYSE': 'XNYS', 'NASDAQ': 'XNAS', 'AMEX': 'XASE'}
@@ -109,9 +110,8 @@ def get_tickers_list():
             count = 0
             for row in output:
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
-                if 'tipe' in row:
-                    if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'],
-                                            row['type']):
+                if 'type' in row:
+                    if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'],row['name'],row['type']):
                         count += 1
             if count > 0:
                 logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
@@ -143,6 +143,8 @@ def get_tickers_from_db(t_type):
 def get_daily_bars(date):
     url = "https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/{date}?adjusted=true&apiKey={key}" \
         .format(date=date, key=api_key)
+
+    input(url)
     r = requests.get(url)
     data = r.json()
     if data['status'] == 'OK':
@@ -163,17 +165,18 @@ def get_current_date(offset=0):
 if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
-                        filename='./log/' + Path(__file__).stem + '.log',
+                        filename=log_path + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
 
     ticker_list = get_tickers_list()
     if len(ticker_list) == 0:
         ticker_list = get_tickers_from_db(stock_type_list[0])
-        print(ticker_list)
+
+    logging.info('%d Tickers for getting data'%len(ticker_list))
 
     # Set date offset if necessary
-    bars = get_daily_bars(get_current_date(-6))
+    bars = get_daily_bars(get_current_date())
     if len(bars) > 0:
         result_str = insert_to_db_table(bars)
         logging.info(result_str)
