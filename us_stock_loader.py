@@ -9,9 +9,10 @@ from datetime import datetime, timedelta
 #
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
-oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-oracle_db = "db202106201548_tp"
-#oracle_db = "db202106200141_tp"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+#oracle_db = "db202106201548_tp"
+oracle_db = "db202106200141_tp"
 api_key = os.environ['API_KEY']
 
 exchange_list = ['NYSE', 'NASDAQ', 'AMEX']
