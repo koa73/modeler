@@ -73,13 +73,13 @@ def insert_to_db_table(bars):
 
 
 # Get all tickers hat meet the condition (type & exchange)
-def get_tickers(exchange_name, type):
+def get_tickers(exchange_name, t_type):
     result = []
 
     try:
-        url = 'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&type={type}' \
+        url = 'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true' \
               '&sort=ticker&order=asc&limit=1000&apiKey={key}&exchange={name}' \
-            .format(name=exchange[exchange_name], key=api_key, type=type)
+            .format(name=exchange[exchange_name], key=api_key, type=t_type)
 
         while True:
             r = requests.get(url)
@@ -116,12 +116,13 @@ def get_tickers_list():
     return result
 
 
-def get_tickers_from_db(type):
+def get_tickers_from_db(t_type):
     try:
         if db_connect:
-            query = f"SELECT trim(a.symbol), 'NASDAQ' t from nasdaq_dict a WHERE type = '{type}' " \
-                    "UNION SELECT trim(b.symbol),'NYSE' FROM nyse_dict b WHERE type = '{type}' " \
-                    "UNION SELECT trim(c.symbol), 'AMEX' FROM amex_dict c WHERE type = '{type}'".format(type=type)
+            query = f"SELECT trim(a.symbol), 'NASDAQ' t from nasdaq_dict a WHERE type = '{t_type}' " \
+                    "UNION SELECT trim(b.symbol),'NYSE' FROM nyse_dict b WHERE type = '{t_type}' " \
+                    "UNION SELECT trim(c.symbol), 'AMEX' FROM amex_dict c WHERE type = '{t_type}'"\
+                .format(t_type=t_type)
 
             cursor = db_connect.cursor()
             cursor.execute(query)
