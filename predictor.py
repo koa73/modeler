@@ -33,7 +33,6 @@ __accuracy = '0.00001'
 log_file = './'+Path(__file__).stem+'.log'
 
 
-
 def change_percent(base, curr):
     try:
         return float(D((float(curr) - float(base)) / float(base)).quantize(D(__accuracy), rounding=ROUND_DOWN))
@@ -95,7 +94,7 @@ def get_check_data(json_row):
     return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24), row['close'][-1]
 
 
-def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) -> str:
+def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) -> list:
     query = ''
     descr = [[]]
     try:
@@ -104,9 +103,8 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) ->
         cursor = db_connect.cursor()
         cursor.execute(query)
         descr = cursor.fetchall()
-        input(descr)
-        query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f)" % \
-                (symbol, stock_exchange_name, date_rw, pwr, last_cost)
+        query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f, '%s')" % \
+                (symbol, stock_exchange_name, date_rw, pwr, last_cost, descr[0][1])
         cursor.execute(query)
         db_connect.commit()
 
@@ -118,9 +116,9 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) ->
 
     finally:
         if len(descr) > 0:
-            return descr[0][0]
+            return descr[0]
         else:
-            return ''
+            return []
 
 
 def send_data_to_bot(d):
@@ -168,7 +166,7 @@ if __name__ == '__main__':
 
                     if y_predicted[0] > min_pwr_value:
                         data_set['UP'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[0]),
-                                               'price': str(last_cost), 'discr': symbol_description})
+                                               'price': str(last_cost), 'discr': symbol_description[0]})
                 elif y_predicted[2] > 0:
                     '''
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
@@ -180,7 +178,7 @@ if __name__ == '__main__':
                     if y_predicted[2] > min_pwr_value:
                         data_set['DOWN'].append(
                             {'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2]) * -1,
-                             'price': str(last_cost), 'discr': symbol_description})
+                             'price': str(last_cost), 'discr': symbol_description[0]})
 
             if len(data_set['UP']) > 0 or len(data_set['DOWN']) > 0:
                 data["stock_exchange"] = stock_exchange_name
