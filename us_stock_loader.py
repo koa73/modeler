@@ -145,8 +145,7 @@ def get_daily_bars(date):
         .format(date=date, key=api_key)
     r = requests.get(url)
     data = r.json()
-    print(url)
-    print(data)
+    print(data['status'])
     if data['status'] == 'OK':
         result = []
         logging.info('%d bars received' % len(data['results']))
