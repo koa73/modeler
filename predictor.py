@@ -19,9 +19,10 @@ data = d.ModelMaker()
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
-oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-oracle_db = "db202106201548_tp"
-#oracle_db = "db202106200141_tp"
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+#oracle_db = "db202106201548_tp"
+oracle_db = "db202106200141_tp"
 bot_url = os.environ['BOT_URL']
 model_path = os.environ['MODEL_PATH']
 model_file_name = 'weights_b25_150_3'
@@ -30,7 +31,7 @@ min_pwr_value = 5
 global db_connect
 # Число знаков в расчетных значениях
 __accuracy = '0.00001'
-log_file = './'+Path(__file__).stem+'.log'
+log_file = '/usr/local/src//'+Path(__file__).stem+'.log'
 
 
 def change_percent(base, curr):
