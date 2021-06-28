@@ -20,7 +20,7 @@ exchange = {'NYSE': 'XNYS', 'NASDAQ': 'XNAS', 'AMEX': 'XASE'}
 # , 'NYSE ARCA':'ARCX'}
 exchange_key = dict((v, k) for k, v in exchange.items())
 
-stock_type_list = ['CS']
+stock_type_list = ['CS', 'PFD']
 ticker_list = {}
 
 
