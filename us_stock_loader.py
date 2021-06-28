@@ -143,8 +143,6 @@ def get_tickers_from_db(t_type):
 def get_daily_bars(date):
     url = "https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/{date}?adjusted=true&apiKey={key}" \
         .format(date=date, key=api_key)
-
-    input(url)
     r = requests.get(url)
     data = r.json()
     if data['status'] == 'OK':
