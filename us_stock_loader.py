@@ -20,7 +20,7 @@ exchange = {'NYSE': 'XNYS', 'NASDAQ': 'XNAS', 'AMEX': 'XASE'}
 # , 'NYSE ARCA':'ARCX'}
 exchange_key = dict((v, k) for k, v in exchange.items())
 
-stock_type_list = ['']
+stock_type_list = ['CS']
 ticker_list = {}
 
 
@@ -77,7 +77,7 @@ def get_tickers(exchange_name, t_type):
     result = []
 
     try:
-        url = 'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true' \
+        url = 'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&type={type}' \
               '&sort=ticker&order=asc&limit=1000&apiKey={key}&exchange={name}' \
             .format(name=exchange[exchange_name], key=api_key, type=t_type)
 
@@ -109,8 +109,9 @@ def get_tickers_list():
             count = 0
             for row in output:
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
-                if 'type' in row:
-                    if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'], row['type']):
+                if 'tipe' in row:
+                    if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'],
+                                            row['type']):
                         count += 1
             if count > 0:
                 logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
@@ -172,12 +173,11 @@ if __name__ == '__main__':
         print(ticker_list)
 
     # Set date offset if necessary
-    """
-    bars = get_daily_bars(get_current_date())
+    bars = get_daily_bars(get_current_date(-6))
     if len(bars) > 0:
         result_str = insert_to_db_table(bars)
         logging.info(result_str)
     else:
         logging.info('>> Unsuccessful result. Bars data is empty')
         exit(1)
-    """
+
