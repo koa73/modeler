@@ -109,7 +109,7 @@ def get_tickers_list():
             count = 0
             for row in output:
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
-                if type in row:
+                if 'type' in row:
                     if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'], row['name'], row['type']):
                         count += 1
             if count > 0:
