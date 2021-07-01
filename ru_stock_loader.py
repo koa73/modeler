@@ -64,7 +64,6 @@ def insert_to_db_table(stock_exchange):
                 query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
                           (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
                            row['VALUE'])
-                input(query_1)
                 cursor = db_connect.cursor()
                 cursor.execute(query_1)
                 db_connect.commit()
