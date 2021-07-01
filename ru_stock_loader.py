@@ -31,13 +31,11 @@ def get_current_value_from_site(ts):
     resp = requests.get('https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/'
                         'securities.jsonp?iss.meta=off&iss.json=extended&callback=angular.callbacks._s'
                         '&security_collection=3&sort_column=SHORTNAME&sort_order=asc&lang=ru&_=' + ts)
-
     if resp:
         resp_text = resp.text.replace('angular.callbacks._s(', '').replace(')', '')
         return (json.loads(resp_text)[1])['marketdata']
 
     else:
-        print(2)
         raise CustomError('Unsuccessful request code received :' + str(resp.status_code))
 
 
@@ -64,9 +62,9 @@ def insert_to_db_table(stock_exchange):
             date_rw = datetime.today().strftime('%d-%b-%Y')
             if row['VALUE'] > 0:
                 query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
-                          (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['CLOSE'],
+                          (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
                            row['VALUE'])
-                print(query_1)
+                input(query_1)
                 cursor = db_connect.cursor()
                 cursor.execute(query_1)
                 db_connect.commit()
