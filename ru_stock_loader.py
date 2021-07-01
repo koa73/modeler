@@ -8,6 +8,12 @@ from pathlib import Path
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
+log_path = os.environ['LOG_PATH']
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+#oracle_db = "db202106200141_tp"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+oracle_db = "db202106201548_tp"
+
 
 stage_value = [
     'Login page loaded', 'Logged to site', 'Download form found', 'Download parameters were setted',
@@ -44,8 +50,8 @@ def get_current_value_from_site(ts):
 def connect():
     try:
         cx_Oracle.init_oracle_client(lib_dir="/usr/local/src/instantclient_21_1",
-                                     config_dir="/usr/local/src/instantclient_21_1/network/admin")
-        connection = cx_Oracle.connect(oracle_login, oracle_password, "db202106200141_tp")
+                                     config_dir=oracle_config_dir)
+        connection = cx_Oracle.connect(oracle_login, oracle_password, oracle_db)
         return connection
 
     except cx_Oracle.Error as ex:
@@ -73,7 +79,7 @@ def insert_to_db_table(stock_exchange):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=__file__.replace('.py', '.log'),
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=log_path + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
     for stock_exchange_name in ['MOEX']:
