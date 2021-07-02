@@ -9,10 +9,10 @@ from pathlib import Path
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
-#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
-#oracle_db = "db202106201548_tp"
-oracle_db = "db202106200141_tp"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+oracle_db = "db202106201548_tp"
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+#oracle_db = "db202106200141_tp"
 archive_db = os.environ['ARCHIVE_DB']
 
 
@@ -31,8 +31,8 @@ def get_archive_date():
     try:
         if db_connect:
             query = "SELECT trim(a.symbol), trim(ex_name), ((a.date_rw - DATE '1970-01-01')*24*60*60), a.pwr, a.last, " \
-                    "((a.exp_date - DATE '1970-01-01')*24*60*60), a.open, a.high, a.low, a.close, a.volume, a.type " \
-                    "FROM archive a WHERE a.moved = 0"
+                    "((a.exp_date - DATE '1970-01-01')*24*60*60), a.open, a.high, a.low, a.close, a.volume, a.type, " \
+                    "a.change FROM archive a WHERE a.moved = 0"
             cursor = db_connect.cursor()
             cursor.execute(query)
             query_resp = cursor.fetchall()
@@ -46,9 +46,9 @@ def get_archive_date():
 def move_data_to_sqlite_db(row, table_name='history_model3'):
     try:
         cur = conn.cursor()
-        query = "INSERT INTO %s VALUES ('%s', '%s', %d, %d, %f, %d, %f, %f, %f, %f, %d, '%s', '%s')" \
+        query = "INSERT INTO %s VALUES ('%s', '%s', %d, %d, %f, %d, %f, %f, %f, %f, %d, '%s', '%s', %f)" \
                 %(table_name, row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8], row[9], row[10],
-                  uuid.uuid5(uuid.NAMESPACE_DNS, row[0]+str(row[2])), row[11])
+                  uuid.uuid5(uuid.NAMESPACE_DNS, row[0]+str(row[2])), row[11], row[12])
         cur.execute(query)
         conn.commit()
         cur.close()
