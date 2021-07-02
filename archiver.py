@@ -59,7 +59,7 @@ def move_data_to_sqlite_db(row, table_name='history_model3'):
         return False
 
 
-def check_data_as_mived(symbol, date_rw):
+def check_data_as_moved(symbol, date_rw):
 
     try:
         if db_connect:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     count = len(data)
     for row in data:
         if move_data_to_sqlite_db(row):
-            check_data_as_mived(row[0], row[2])
+            check_data_as_moved(row[0], row[2])
             count -= 1
 
     if count == 0:
