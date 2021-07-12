@@ -24,7 +24,7 @@ X_none, y_none = data.get_edu_data('edu','NONE_'+sys.argv[1], '2D')
 class_weight = {0: 1., 1: 1., 2: 1.}
 
 X_train = np.concatenate((X_down, X_up), axis=0)
-y_train = np.concatenate((y_down, y_none), axis=0)
+y_train = np.concatenate((y_none, y_up), axis=0)
 X_train = np.concatenate((X_train, X_none), axis=0)
 y_train = np.concatenate((y_train, y_none), axis=0)
 
@@ -80,15 +80,15 @@ for j in seq(0.25, 0.7, 0.05):
 
         print("----------------  Start new loop with value : " + str(j))
         # Тренировка сети Set 0 -UP, 1-None, 2-Down
-        class_weight[2] = j
+        class_weight[0] = j
 
         model = prepare_model()
 
         # ===================== Data load =========================
 
-        X_down, y_down = data.get_check_data('test', 'DOWN_b38', '2D')
-        X_up, y_up = data.get_check_data('test', 'UP_b38', '2D')
-        X_none, y_none = data.get_check_data('test', 'NONE_b38', '2D')
+        X_down, y_down = data.get_check_data('test', 'DOWN_b40', '2D')
+        X_up, y_up = data.get_check_data('test', 'UP_b40', '2D')
+        X_none, y_none = data.get_check_data('test', 'NONE_b40', '2D')
 
         # ===================== Make prediction =====================
 
@@ -99,4 +99,4 @@ for j in seq(0.25, 0.7, 0.05):
         # ====================== Check model =========================
 
         data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                                "DOWN model short period ----- fix 1/1/"+str(j))
+                                "UP model short period ----- fix 1/1/"+str(j))

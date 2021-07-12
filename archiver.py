@@ -12,7 +12,7 @@ oracle_password = os.environ['ORACLE_PASSWORD']
 oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
 oracle_db = "db202106201548_tp"
 #oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
-#oracle_db = "db202106200141_tp"
+#oracle_db = "db202107091450_tp"
 archive_db = os.environ['ARCHIVE_DB']
 
 
