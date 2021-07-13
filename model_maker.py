@@ -80,7 +80,6 @@ try:
                         filename='/usr/local/src/modeler/log/model_maker.log')
 
     for j in seq(0.25, 0.7, 0.05):
-        print(11111111)
         print("----------------  Start new loop with value : " + str(j))
         for i in seq(1, 10, 1):
             logging.info("----------------  Start new loop with value class_weight: %s, iteration : %s " % (str(j),
