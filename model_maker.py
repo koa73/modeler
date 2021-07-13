@@ -77,7 +77,7 @@ def seq(start, end, step):
 
 try:
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
-                        filename='/usr/local/src/model_maker.log')
+                        filename='/usr/local/src/modeler/log/model_maker.log')
 
     for j in seq(0.25, 0.7, 0.05):
         # print("----------------  Start new loop with value : " + str(j))
