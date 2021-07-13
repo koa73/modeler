@@ -79,7 +79,7 @@ try:
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
                         filename='/usr/local/src/modeler/log/model_maker.log')
 
-    for j in seq(0.55, 1.2, 0.05):
+    for j in seq(0.8, 1.3, 0.05):
         print("----------------  Start new loop with value : " + str(j))
         for i in seq(1, 10, 1):
             logging.info("----------------  Start new loop with value class_weight: %s, iteration : %s " % (str(j),
