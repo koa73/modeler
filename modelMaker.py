@@ -230,13 +230,13 @@ class ModelMaker:
 
         if need_archive:
             # k1- чувствительность, k2 - относительная ошибка
-            #if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
-            self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
+            if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
+                self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
 
         else:
 
-            #if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
-             self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
+            if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
+                self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
 
         return up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2
 
