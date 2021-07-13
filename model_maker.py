@@ -6,6 +6,7 @@ import modelMaker as d
 import itertools
 import numpy as np
 import time
+import logging
 
 data = d.ModelMaker()
 
@@ -74,29 +75,37 @@ def seq(start, end, step):
     return itertools.islice(itertools.count(start, step), sample_count)
 
 
-for j in seq(0.25, 0.7, 0.05):
+try:
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
+                        filename='/usr/local/src/model_maker.log')
 
-    for i in seq(1, 10, 1):
+    for j in seq(0.25, 0.7, 0.05):
+        # print("----------------  Start new loop with value : " + str(j))
+        for i in seq(1, 10, 1):
+            logging.info("----------------  Start new loop with value class_weight: %s, iteration : %s " % (str(j),
+                                                                                                            str(i)))
+            # Тренировка сети Set 0 -UP, 1-None, 2-Down
+            class_weight[0] = j
 
-        print("----------------  Start new loop with value : " + str(j))
-        # Тренировка сети Set 0 -UP, 1-None, 2-Down
-        class_weight[0] = j
+            model = prepare_model()
 
-        model = prepare_model()
+            # ===================== Data load =========================
 
-        # ===================== Data load =========================
+            X_down, y_down = data.get_check_data('test', 'DOWN_b40', '2D')
+            X_up, y_up = data.get_check_data('test', 'UP_b40', '2D')
+            X_none, y_none = data.get_check_data('test', 'NONE_b40', '2D')
 
-        X_down, y_down = data.get_check_data('test', 'DOWN_b40', '2D')
-        X_up, y_up = data.get_check_data('test', 'UP_b40', '2D')
-        X_none, y_none = data.get_check_data('test', 'NONE_b40', '2D')
+            # ===================== Make prediction =====================
 
-        # ===================== Make prediction =====================
+            y_up_pred_test = model.predict([X_up])
+            y_none_pred_test = model.predict([X_none])
+            y_down_pred_test = model.predict([X_down])
 
-        y_up_pred_test = model.predict([X_up])
-        y_none_pred_test = model.predict([X_none])
-        y_down_pred_test = model.predict([X_down])
+            # ====================== Check model =========================
 
-        # ====================== Check model =========================
+            data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
+                                    "UP model short period ----- fix 1/1/" + str(j))
 
-        data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                                "UP model short period ----- fix 1/1/"+str(j))
+except Exception as ex:
+    logging.info('>> Unsuccessful result. Script stopped : ' + str(ex))
+    exit(1)
