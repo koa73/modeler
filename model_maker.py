@@ -79,7 +79,7 @@ try:
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
                         filename='/usr/local/src/modeler/log/model_maker.log')
 
-    for j in seq(0.45, 0.7, 0.05):
+    for j in seq(0.5, 0.7, 0.05):
         print("----------------  Start new loop with value : " + str(j))
         for i in seq(1, 10, 1):
             logging.info("----------------  Start new loop with value class_weight: %s, iteration : %s " % (str(j),
@@ -104,7 +104,7 @@ try:
             # ====================== Check model =========================
 
             data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                                    "UP model short period ----- fix 1/1/" + str(j))
+                                    "UP model short period ----- fix %s/1.5/1/" % str(j))
 
 except Exception as ex:
     logging.info('>> Unsuccessful result. Script stopped : ' + str(ex))
