@@ -189,5 +189,5 @@ if __name__ == '__main__':
                 send_data_to_bot(data)
 
         except Exception as ex:
-            logging.info('>> ' + stock_exchange_name + ' : ' + ex + ' : ')
+            logging.info('>> ' + stock_exchange_name + ' : ' + str(ex) + ' : ')
             exit(1)
