@@ -22,7 +22,7 @@ X_up, y_up = data.get_edu_data('edu','UP_'+sys.argv[1], '2D')
 X_down, y_down = data.get_edu_data('edu','DOWN_'+sys.argv[1], '2D')
 X_none, y_none = data.get_edu_data('edu','NONE_'+sys.argv[1], '2D')
 
-class_weight = {0: 1., 1: 1., 2: 1.}
+class_weight = {0: 1., 1: 1.5, 2: 1.5}
 
 X_train = np.concatenate((X_down, X_up), axis=0)
 y_train = np.concatenate((y_none, y_up), axis=0)
@@ -37,8 +37,8 @@ def prepare_model():
     norma_layer = tf.keras.layers.LayerNormalization(axis=1, name='2' + sec)(input_layer_1)
     hidden_d2_dense = tf.keras.layers.Dense(12, activation='tanh', name='3' + sec)(norma_layer)
     hidden_d3_dense = tf.keras.layers.Dense(24, activation='tanh', name='4' + sec)(hidden_d2_dense)
-    #hidden_d4_dense = tf.keras.layers.Dense(34, activation='tanh', name='5' + sec)(hidden_d3_dense)
-    hidden_d5_dense = tf.keras.layers.Dense(6, activation='tanh', name='6' + sec)(hidden_d2_dense)
+    hidden_d4_dense = tf.keras.layers.Dense(34, activation='tanh', name='5' + sec)(hidden_d3_dense)
+    hidden_d5_dense = tf.keras.layers.Dense(6, activation='tanh', name='6' + sec)(hidden_d4_dense)
     output = tf.keras.layers.Dense(3, activation='softmax', name='7' + sec)(hidden_d5_dense)
 
     #
@@ -77,11 +77,11 @@ def seq(start, end, step):
 
 try:
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
-                        filename='/usr/local/src/modeler/log/model_maker.log')
+                        filename='./log/model_maker.log')
 
-    for j in seq(0.5, 0.6, 0.05):
+    for j in seq(0.5, 0.65, 0.05):
         print("----------------  Start new loop with value : " + str(j))
-        for i in seq(1, 10, 1):
+        for i in seq(1, 11, 1):
             logging.info("----------------  Start new loop with value class_weight: %s, iteration : %s " % (str(j),
                                                                                                             str(i)))
             # Тренировка сети Set 0 -UP, 1-None, 2-Down
@@ -91,9 +91,9 @@ try:
 
             # ===================== Data load =========================
 
-            X_down, y_down = data.get_check_data('test', 'DOWN_b40', '2D')
-            X_up, y_up = data.get_check_data('test', 'UP_b40', '2D')
-            X_none, y_none = data.get_check_data('test', 'NONE_b40', '2D')
+            X_down, y_down = data.get_check_data('test', 'DOWN_b41_150', '2D')
+            X_up, y_up = data.get_check_data('test', 'UP_b41_150', '2D')
+            X_none, y_none = data.get_check_data('test', 'NONE_b41_150', '2D')
 
             # ===================== Make prediction =====================
 
@@ -104,7 +104,7 @@ try:
             # ====================== Check model =========================
 
             data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                                    "UP model short period ----- fix %s/1/1/" % str(j))
+                                    "UP model short period ----- fix %s/1.5/1.5/" % str(j))
 
 except Exception as ex:
     logging.info('>> Unsuccessful result. Script stopped : ' + str(ex))
