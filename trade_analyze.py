@@ -90,7 +90,9 @@ if __name__ == '__main__':
     for i in pwr_list:
         pwr_comb = get_combination(pwr_list.keys(), i)
         for j in pwr_comb:
+
             # print("count %d, value : %d" % (i, len(pwr_comb)))
+
             rows = get_archive_values(j)
             sum_last = 0
             sum_open = 0
