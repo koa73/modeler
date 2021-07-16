@@ -101,5 +101,4 @@ if __name__ == '__main__':
                 sum_last = sum_last + count_profit(row[1], row[3], row[0])
                 sum_open = sum_open + count_profit(row[2], row[3], row[0])
             save_to_db(re.sub(r'[()]|,\)$','', str(j)), sum_last / count, sum_open / count, count)
-            input(re.sub(r'[()]|,\)$','', str(j)))
             #print("PWR: %s, Sum_last : %f, Sum_open : %f, Count : %d" % (re.sub(r'[()]|,\)$','', str(j)), sum_last / count, sum_open / count, count))
