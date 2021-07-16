@@ -22,7 +22,7 @@ X_up, y_up = data.get_edu_data('edu','UP_'+sys.argv[1], '2D')
 X_down, y_down = data.get_edu_data('edu','DOWN_'+sys.argv[1], '2D')
 X_none, y_none = data.get_edu_data('edu','NONE_'+sys.argv[1], '2D')
 
-class_weight = {0: 1., 1: 1.5, 2: 1.5}
+class_weight = {0: 1., 1: 1.1, 2: 1.1}
 
 X_train = np.concatenate((X_down, X_up), axis=0)
 y_train = np.concatenate((y_none, y_up), axis=0)
@@ -79,7 +79,7 @@ try:
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
                         filename='./log/model_maker.log')
 
-    for j in seq(0.5, 0.65, 0.05):
+    for j in seq(1., 1.05, 0.05):
         print("----------------  Start new loop with value : " + str(j))
         for i in seq(1, 11, 1):
             logging.info("----------------  Start new loop with value class_weight: %s, iteration : %s " % (str(j),
@@ -104,7 +104,7 @@ try:
             # ====================== Check model =========================
 
             data.check_single_model(y_up_pred_test, y_none_pred_test, y_down_pred_test, sys.argv[1],
-                                    "UP model short period ----- fix %s/1.5/1.5/" % str(j))
+                                    "UP model short period ----- fix %s/1.1/1.1/" % str(j))
 
 except Exception as ex:
     logging.info('>> Unsuccessful result. Script stopped : ' + str(ex))
