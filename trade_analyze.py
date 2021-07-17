@@ -36,7 +36,7 @@ def get_all_pwr(condition):
 
 def get_combination(input_list, chain_size):
     result = []
-    for i in combinations(input_list, chain_size):
+    for i in combinations(input_list, abs(chain_size)):
         result.append(i)
         #print(i, end=' ')  # ab ac ad bc bd cd
     return result
@@ -87,13 +87,14 @@ def get_top_value(row, inp_array, column, end):
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
-                        filename='/usr/local/src/data_receiver/' + Path(__file__).stem + '.log',
+                        #filename='/usr/local/src/data_receiver/log/' + Path(__file__).stem + '.log',
+                        filename='./log/' + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
 
     pwr_last_array = []
     pwr_open_array = []
-    for condition in (">0", "<0"):
+    for condition in ("<0", ">0"):
         pwr_list = get_all_pwr(condition)
         for i in pwr_list:
             pwr_comb = get_combination(pwr_list.keys(), i)
