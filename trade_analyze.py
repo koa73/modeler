@@ -1,8 +1,9 @@
 import cx_Oracle
 import os
 import logging
-from pathlib import Path
+import datetime
 import re
+from pathlib import Path
 from itertools import *
 
 oracle_login = os.environ['ORACLE_LOGIN']
@@ -22,9 +23,16 @@ def connect():
         logging.info('DB connection Error : ' + str(ex))
 
 
+def this_week_range(d):
+    star_date = (d - datetime.timedelta(d.weekday())).strftime('%d-%b-%Y')
+    end_date = (d + datetime.timedelta(7 - d.weekday())).strftime('%d-%b-%Y')
+    return "AND date_rw > '{start}' AND date_rw < '{end}'".format(start=star_date, end=end_date)
+
+
 # condition : "> 0" or "< 0" or "<> 0"
-def get_all_pwr(condition):
-    query = "SELECT pwr, count(pwr) from ARCHIVE where pwr %s GROUP BY pwr ORDER BY pwr ASC" % condition
+def get_all_pwr(pwr_cond, date_range):
+    query = "SELECT pwr, count(pwr) from ARCHIVE where pwr {pwr_cond} {date_range} GROUP BY pwr ORDER BY pwr ASC"\
+        .format(pwr_cond=pwr_cond,date_range=date_range)
     try:
         cursor = db_connect.cursor()
         cursor.execute(query)
@@ -42,13 +50,16 @@ def get_combination(input_list, chain_size):
     return result
 
 
-def get_archive_values(r):
+def get_archive_values(r, date_range):
     if len(r) != 1:
-        query = "SELECT pwr, last, open, close, high, low FROM ARCHIVE WHERE pwr in {range}".format(range=r)
+        query = "SELECT pwr, last, open, close, high, low FROM ARCHIVE WHERE pwr in {range} {date_range}"\
+            .format(range=r, date_range=date_range)
     else:
-        query = "SELECT pwr, last, open, close, high, low FROM ARCHIVE WHERE pwr = %s" % r
+        query = "SELECT pwr, last, open, close, high, low FROM ARCHIVE WHERE pwr={strength} {date_range}"\
+            .format(strength=r, date_range=date_range)
 
     try:
+        input(query)
         cursor = db_connect.cursor()
         cursor.execute(query)
         return cursor.fetchall()
@@ -92,17 +103,18 @@ if __name__ == '__main__':
                         level=logging.INFO)
     db_connect = connect()
 
-    pwr_last_array = []
-    pwr_open_array = []
-    for condition in ("<0", ">0"):
-        pwr_list = get_all_pwr(condition)
+    date_range = this_week_range(datetime.date.today())
+    for condition in (">0", "<0"):
+        pwr_last_array = []
+        pwr_open_array = []
+        pwr_list = get_all_pwr(condition, date_range)
         for i in pwr_list:
             pwr_comb = get_combination(pwr_list.keys(), i)
             for j in pwr_comb:
 
                 # print("count %d, value : %d" % (i, len(pwr_comb)))
 
-                rows = get_archive_values(j)
+                rows = get_archive_values(j, date_range)
                 sum_last = 0
                 sum_open = 0
 
