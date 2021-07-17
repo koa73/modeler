@@ -80,12 +80,19 @@ def save_to_db(pwr_str, sum_last, sum_open, count):
         logging.info('DB Error : ' + str(ex) + query)
 
 
+def get_top_value(row, inp_array, column, end):
+    inp_array.append(row)
+    return sorted(inp_array, key=lambda inp: inp[column],reverse=True)[:end]
+
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
                         filename='./log/' + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
 
+    pwr_last_array = []
+    pwr_open_array = []
     pwr_list = get_all_pwr(">0")
     for i in pwr_list:
         pwr_comb = get_combination(pwr_list.keys(), i)
@@ -96,9 +103,18 @@ if __name__ == '__main__':
             rows = get_archive_values(j)
             sum_last = 0
             sum_open = 0
+
             count = len(rows)
             for row in rows:
                 sum_last = sum_last + count_profit(row[1], row[3], row[0])
                 sum_open = sum_open + count_profit(row[2], row[3], row[0])
+
+            pwr_row = (re.sub(r'[()]|,\)$','', str(j)), sum_last / count, sum_open / count, count)
+            pwr_last_array = get_top_value(pwr_row, pwr_last_array, 1, 10)
+            pwr_open_array = get_top_value(pwr_row, pwr_open_array, 2, 10)
             save_to_db(re.sub(r'[()]|,\)$','', str(j)), sum_last / count, sum_open / count, count)
             #print("PWR: %s, Sum_last : %f, Sum_open : %f, Count : %d" % (re.sub(r'[()]|,\)$','', str(j)), sum_last / count, sum_open / count, count))
+    print("------------------ Last ----------------------")
+    print(pwr_last_array)
+    print("-------------------Open ----------------------")
+    print(pwr_open_array)
