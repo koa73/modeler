@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 #
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
-oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
-oracle_db = "db202107091450_tp"
-#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-#oracle_db = "db202106201548_tp"
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+#oracle_db = "db3_high"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+oracle_db = "db31c_high"
 api_key = os.environ['API_KEY']
 log_path = os.environ['LOG_PATH']
 
@@ -55,7 +55,12 @@ def insert_to_db_table(bars):
         count = 0
         for row in bars:
             if db_connect:
+                '''
                 query = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
+                        (row['ex'], row['T'], datetime.fromtimestamp(row['t'] / 1000).strftime('%d-%b-%Y'), row['o'],
+                         row['h'], row['l'], row['c'], row['v'])
+                '''
+                query = "CALL INSERT_INTO_STOCKS('%s_STOCKS','%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
                         (row['ex'], row['T'], datetime.fromtimestamp(row['t'] / 1000).strftime('%d-%b-%Y'), row['o'],
                          row['h'], row['l'], row['c'], row['v'])
 
@@ -63,7 +68,7 @@ def insert_to_db_table(bars):
                 cursor.execute(query)
                 db_connect.commit()
             count += 1
-
+            print(row['ex'])
         if len(bars) == count:
             return "Successful complete. All " + str(count) + " was inserted to DB."
         else:
@@ -104,6 +109,8 @@ def get_tickers_list():
     result = {}
     for stock_exchange_name in exchange_list:
         for stock_type in stock_type_list:
+            print(stock_exchange_name, end=", ")
+            print(stock_type)
             output = get_tickers(stock_exchange_name, stock_type)
             if len(output) == 0:
                 logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
@@ -166,15 +173,15 @@ if __name__ == '__main__':
                         filename=log_path + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
-
-    ticker_list = get_tickers_list()
+    #ticker_list = get_tickers_list()
+    ticker_list = []
     if len(ticker_list) == 0:
         ticker_list = get_tickers_from_db(stock_type_list[0])
 
     #logging.info('%d Tickers for getting data'%len(ticker_list))
 
     # Set date offset if necessary
-    bars = get_daily_bars(get_current_date())
+    bars = get_daily_bars(get_current_date(-1))
     if len(bars) > 0:
         result_str = insert_to_db_table(bars)
         logging.info(result_str)

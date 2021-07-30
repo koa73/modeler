@@ -10,9 +10,9 @@ oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
 log_path = os.environ['LOG_PATH']
 #oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
-#oracle_db = "db202107091450_tp"
+#oracle_db = "db3_high"
 oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-oracle_db = "db202106201548_tp"
+oracle_db = "db31c_high"
 
 
 stage_value = [
@@ -61,9 +61,16 @@ def insert_to_db_table(stock_exchange):
             #date_rw = '03-JUN-2021'
             date_rw = datetime.today().strftime('%d-%b-%Y')
             if row['VALUE'] > 0:
+                '''
                 query_1 = "INSERT INTO %s_STOCKS VALUES ('%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
                           (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
                            row['VALUE'])
+                '''
+
+                query_1 = "CALL INSERT_INTO_STOCKS('%s_STOCKS','%s', to_date('%s'), %f, %f, %f, %f, %f)" % \
+                          (stock_exchange, row['SECID'], date_rw, row['OPEN'], row['HIGH'], row['LOW'], row['LAST'],
+                           row['VALUE'])
+
                 cursor = db_connect.cursor()
                 cursor.execute(query_1)
                 db_connect.commit()
