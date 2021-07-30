@@ -9,10 +9,10 @@ from pathlib import Path
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
 log_path = os.environ['LOG_PATH']
-#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
-#oracle_db = "db3_high"
-oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-oracle_db = "db31c_high"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+oracle_db = "db3_high"
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+#oracle_db = "db31c_high"
 
 
 stage_value = [
