@@ -32,7 +32,6 @@ min_pwr_value = 1
 global db_connect
 # Число знаков в расчетных значениях
 __accuracy = '0.00001'
-log_file = log_path+Path(__file__).stem+'.log'
 
 
 def change_percent(base, curr):
@@ -138,7 +137,7 @@ def send_data_to_bot(d):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=log_file,
+    logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s', filename=log_path+Path(__file__).stem+'.log',
                         level=logging.INFO)
     # Connect to DB
     db_connect = connect()
