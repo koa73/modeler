@@ -19,19 +19,19 @@ data = d.ModelMaker()
 
 oracle_login = os.environ['ORACLE_LOGIN']
 oracle_password = os.environ['ORACLE_PASSWORD']
-#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
-#oracle_db = "db202106201548_tp"
-oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
-oracle_db = "db202107091450_tp"
+oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin/clone_db"
+oracle_db = "db31c_high"
+#oracle_config_dir = "/usr/local/src/instantclient_21_1/network/admin"
+#oracle_db = "db3_high"
 bot_url = os.environ['BOT_URL']
 model_path = os.environ['MODEL_PATH']
 model_file_name = 'weights_b25_150_3'
-min_pwr_value = 5
+min_pwr_value = 1
 
 global db_connect
 # Число знаков в расчетных значениях
 __accuracy = '0.00001'
-log_file = '/usr/local/src//'+Path(__file__).stem+'.log'
+log_file = '/usr/local/src/'+Path(__file__).stem+'.log'
 
 
 def change_percent(base, curr):
@@ -95,31 +95,32 @@ def get_check_data(json_row):
     return row['symbol'], row['date'], (np.asarray(prepared_data, dtype=np.float64)).reshape(1, 24), row['close'][-1]
 
 
-def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost) -> list:
+def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
     query = ''
     descr = [[]]
     try:
 
         query = "SELECT a.descr, a.type FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" % symbol
-        cursor = db_connect.cursor()
-        cursor.execute(query)
-        descr = cursor.fetchall()
-        query = "INSERT INTO ADVISER_LOG VALUES ('%s', '%s', to_date('%s', 'dd/mm/yyyy'), %d, %f, '%s')" % \
-                (symbol, stock_exchange_name, date_rw, pwr, last_cost, descr[0][1])
-        cursor.execute(query)
-        db_connect.commit()
+        with db_connect.cursor() as cursor:
+            cursor.execute(query)
+            descr = cursor.fetchall()
+            order_count = cursor.var(int)
+            print(date_rw)
+
+            cursor.callproc('insert_into_adviser_log',
+                            ['ZZTOP', 'MOEX', '29-JUL-2022', 5, 1.09, 'CS', order_count])
+
+            db_connect.commit()
+            return descr[0], order_count
+
 
     except FileNotFoundError:
-        logging.info("Can't insert : " + query)
+        logging.info("Can't insert : %s %s  %s  %d %f" % (symbol, stock_exchange_name, date_rw, pwr, last_cost) )
+        return [], 0
 
     except cx_Oracle.Error as ex:
         logging.info('DB Error : ' + str(ex) + query)
-
-    finally:
-        if len(descr) > 0:
-            return descr[0]
-        else:
-            return []
+        return [], 0
 
 
 def send_data_to_bot(d):
@@ -162,10 +163,10 @@ if __name__ == '__main__':
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
                           .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
                     '''
-                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0],
+                    symbol_description, count = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0],
                                                              last_cost)
 
-                    if y_predicted[0] > min_pwr_value:
+                    if (y_predicted[0] > min_pwr_value) and (count == 1):
                         data_set['UP'].append({'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[0]),
                                                'price': str(last_cost), 'discr': symbol_description[0]})
                 elif y_predicted[2] > 0:
@@ -173,10 +174,10 @@ if __name__ == '__main__':
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
                           .format(symbol.rstrip(), date_rw, y_predicted, last_cost))
                     '''
-                    symbol_description = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2] * -1,
+                    symbol_description, count = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[2] * -1,
                                                              last_cost)
 
-                    if y_predicted[2] > min_pwr_value:
+                    if (y_predicted[2] > min_pwr_value) and (count == 1):
                         data_set['DOWN'].append(
                             {'symbol': symbol, 'date': str(date_rw), 'pwr': int(y_predicted[2]) * -1,
                              'price': str(last_cost), 'discr': symbol_description[0]})
