@@ -25,13 +25,14 @@ oracle_db = "db31c_high"
 #oracle_db = "db3_high"
 bot_url = os.environ['BOT_URL']
 model_path = os.environ['MODEL_PATH']
+log_path = os.environ['LOG_PATH']
 model_file_name = 'weights_b25_150_3'
 min_pwr_value = 1
 
 global db_connect
 # Число знаков в расчетных значениях
 __accuracy = '0.00001'
-log_file = '/usr/local/src/'+Path(__file__).stem+'.log'
+log_file = log_path+Path(__file__).stem+'.log'
 
 
 def change_percent(base, curr):
