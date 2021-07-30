@@ -158,6 +158,8 @@ if __name__ == '__main__':
                 except Exception as ex:
                     continue
                 y_predicted = model.predict([check_data])[0]
+                symbol_description, count = insert_signal_to_db(symbol, stock_exchange_name, date_rw, y_predicted[0],
+                                                                last_cost)
                 if y_predicted[0] > 0:
                     '''
                     print("Stock symbol {0} \t at date {1} found signal {2} recommended price {3}"
