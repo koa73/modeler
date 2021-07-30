@@ -152,6 +152,7 @@ if __name__ == '__main__':
             logging.info('----------------- ' + stock_exchange_name + ' ------------------------------')
             print('----------------------------------- ' + stock_exchange_name + ' ----------------------------')
             rows = get_data_from_table(stock_exchange_name)
+            input(len(rows))
             for json_row in rows:
                 try:
                     symbol, date_rw, check_data, last_cost = get_check_data(json_row)
