@@ -105,10 +105,9 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
             cursor.execute(query)
             descr = cursor.fetchall()
             order_count = cursor.var(int)
-            print(date_rw)
 
             cursor.callproc('insert_into_adviser_log',
-                            ['ZZTOP', 'MOEX', '29-JUL-2022', 5, 1.09, 'CS', order_count])
+                            [symbol, stock_exchange_name, date_rw, pwr, last_cost, descr[0][1], order_count])
 
             db_connect.commit()
             return descr[0], order_count
