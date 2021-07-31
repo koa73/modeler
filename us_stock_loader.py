@@ -68,7 +68,6 @@ def insert_to_db_table(bars):
                 cursor.execute(query)
                 db_connect.commit()
             count += 1
-            print(row['ex'])
         if len(bars) == count:
             return "Successful complete. All " + str(count) + " was inserted to DB."
         else:
