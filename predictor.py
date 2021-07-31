@@ -99,14 +99,15 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
     query = ''
     try:
 
-        query = "SELECT a.descr, a.type FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" % symbol
+        query = "SELECT a.descr, OALESCE(a.type, ' ') FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" \
+                % symbol
         print(query)
         with db_connect.cursor() as cursor:
             cursor.execute(query)
             _d_ = cursor.fetchall()
             input(_d_)
             order_count = cursor.var(int)
-
+            query = " call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s)" % (symbol, stock_exchange_name, date_rw, pwr, last_cost, _d_[0][1])
             cursor.callproc('insert_into_adviser_log',
                             [symbol, stock_exchange_name, date_rw, pwr, last_cost, _d_[0][1], order_count])
 
