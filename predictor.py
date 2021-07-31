@@ -99,7 +99,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
     query = ''
     try:
 
-        query = "SELECT a.descr, OALESCE(a.type, ' ') FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" \
+        query = "SELECT a.descr, COALESCE(a.type, ' ') FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" \
                 % symbol
         print(query)
         with db_connect.cursor() as cursor:
