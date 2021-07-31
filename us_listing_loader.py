@@ -43,7 +43,7 @@ def insert_to_dictionary(exchange, ticker, name, type):
             db_connect.commit()
             return True
     except cx_Oracle.Error as ex:
-        logging.info('DB Error : '+str(ex))
+        #logging.info('DB Error : '+str(ex))
         return False
 
 # Get all tickers hat meet the condition (type & exchange)
@@ -81,7 +81,7 @@ def get_tickers_list():
             if len(output) == 0:
                 logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
             else:
-                logging.info("Received for %s %s tickers" % (stock_exchange_name, len(output)))
+                logging.info("Received for %s %s tickers of type %s" % (stock_exchange_name, len(output), stock_type))
             count = 0
 
             for row in output:
@@ -91,6 +91,9 @@ def get_tickers_list():
                         count += 1
             if count > 0:
                 logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
+            else:
+                logging.info('No one new ticker was loaded to dictionary.')
+
 
 
 if __name__ == '__main__':
