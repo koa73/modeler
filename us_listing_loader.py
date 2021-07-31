@@ -80,8 +80,7 @@ def get_tickers_list():
             output = get_tickers(stock_exchange_name, stock_type)
             if len(output) == 0:
                 logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
-            else:
-                logging.info("Received for %s %s tickers of type %s" % (stock_exchange_name, len(output), stock_type))
+
             count = 0
 
             for row in output:
@@ -89,10 +88,9 @@ def get_tickers_list():
                 if 'type' in row:
                     if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'],row['name'],row['type']):
                         count += 1
-            if count > 0:
-                logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
-            else:
-                logging.info('No one new ticker was loaded to dictionary.')
+
+            logging.info("Received for %s %s tickers of type %s, inserted to db : %s" %
+                             (stock_exchange_name, len(output), stock_type, count))
 
 
 
