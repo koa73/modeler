@@ -180,7 +180,7 @@ if __name__ == '__main__':
     #logging.info('%d Tickers for getting data'%len(ticker_list))
 
     # Set date offset if necessary
-    bars = get_daily_bars(get_current_date(-1))
+    bars = get_daily_bars(get_current_date())
     if len(bars) > 0:
         result_str = insert_to_db_table(bars)
         logging.info(result_str)
