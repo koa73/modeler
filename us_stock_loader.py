@@ -32,7 +32,6 @@ def connect():
         return connection
 
     except cx_Oracle.Error as ex:
-        print(ex)
         logging.info('DB connection Error : ' + str(ex))
 
 
@@ -108,8 +107,6 @@ def get_tickers_list():
     result = {}
     for stock_exchange_name in exchange_list:
         for stock_type in stock_type_list:
-            print(stock_exchange_name, end=", ")
-            print(stock_type)
             output = get_tickers(stock_exchange_name, stock_type)
             if len(output) == 0:
                 logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
