@@ -107,10 +107,11 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
             _d_ = cursor.fetchall()
             order_count = cursor.var(int)
             date_rw = datetime.strptime(date_rw, '%d/%m/%Y').strftime('%d-%b-%Y')
-            query = " call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s)" % (symbol, stock_exchange_name,
-                                                                                      date_rw, pwr, last_cost, _d_[0][1])
+            query = " call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s, %s)" % (symbol, stock_exchange_name,
+                                                                                      date_rw, pwr, last_cost,
+                                                                                          str(_d_[0][1]), order_count)
             cursor.callproc('insert_into_adviser_log',
-                            [symbol, stock_exchange_name, date_rw, pwr, last_cost, _d_[0][1], order_count])
+                            [symbol, stock_exchange_name, date_rw, pwr, last_cost, str(_d_[0][1]), order_count])
 
             db_connect.commit()
             return _d_[0], order_count
