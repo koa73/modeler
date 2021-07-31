@@ -6,6 +6,7 @@ import json
 import requests
 import numpy as np
 from pathlib import Path
+from datetime import datetime
 from decimal import Decimal as D, ROUND_DOWN
 import modelMaker as d
 
@@ -104,9 +105,10 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
         with db_connect.cursor() as cursor:
             cursor.execute(query)
             _d_ = cursor.fetchall()
-            print(_d_)
             order_count = cursor.var(int)
-            query = " call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s)" % (symbol, stock_exchange_name, date_rw, pwr, last_cost, _d_[0][1])
+            date_rw = datetime.strptime(date_rw, '%d/%m/%Y').strftime('%d-%b-%Y')
+            query = " call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s)" % (symbol, stock_exchange_name,
+                                                                                      date_rw, pwr, last_cost, _d_[0][1])
             cursor.callproc('insert_into_adviser_log',
                             [symbol, stock_exchange_name, date_rw, pwr, last_cost, _d_[0][1], order_count])
 
