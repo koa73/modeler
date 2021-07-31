@@ -43,8 +43,8 @@ def insert_to_dictionary(exchange, ticker, name, type):
             db_connect.commit()
             return True
     except cx_Oracle.Error as ex:
-        return False
         logging.info('DB Error : '+str(ex))
+        return False
 
 # Get all tickers hat meet the condition (type & exchange)
 def get_tickers(exchange_name, t_type):
