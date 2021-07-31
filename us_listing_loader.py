@@ -80,7 +80,10 @@ def get_tickers_list():
             output = get_tickers(stock_exchange_name, stock_type)
             if len(output) == 0:
                 logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
+            else:
+                logging.info("Received for %s %s tickers" % (stock_exchange_name, len(output)))
             count = 0
+
             for row in output:
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
                 if 'type' in row:
