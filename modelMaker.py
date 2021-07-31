@@ -232,6 +232,7 @@ class ModelMaker:
             # k1- чувствительность, k2 - относительная ошибка
             #if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
             #if (k1>2 and k2 < 17):
+
             self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
 
         else:
