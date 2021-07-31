@@ -110,13 +110,9 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
             query = "call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s, %s)" \
                     % (symbol, stock_exchange_name, _date_rw, pwr, last_cost, str(_d_[0][1]), order_count)
 
-            print("1 type %s" % type(symbol))
-            print("2 type %s" % type(stock_exchange_name))
-            print("3 type %s" % type(_date_rw))
-            print("4 type %s , %s" % (type(float(pwr)), pwr))
-            print("5 type %s" % type(last_cost))
-            print("6 type %s" % type(str(_d_[0][1])))
-            print("7 type %s" % type(order_count))
+            print(pwr)
+            print(query)
+
 
             cursor.callproc('insert_into_adviser_log',
                             [symbol, stock_exchange_name, _date_rw, float(pwr), last_cost, str(_d_[0][1]), order_count])
