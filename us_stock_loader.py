@@ -18,7 +18,6 @@ log_path = os.environ['LOG_PATH']
 
 exchange_list = ['NYSE', 'NASDAQ', 'AMEX']
 exchange = {'NYSE': 'XNYS', 'NASDAQ': 'XNAS', 'AMEX': 'XASE'}
-# , 'NYSE ARCA':'ARCX'}
 exchange_key = dict((v, k) for k, v in exchange.items())
 
 stock_type_list = ['CS', 'PFD']
@@ -101,26 +100,6 @@ def get_tickers(exchange_name, t_type):
         logging.info('>> Unsuccessful request of ticker list from service.')
         return []
 
-
-# Prepare dictionary for tickers with link to exchange name
-def get_tickers_list():
-    result = {}
-    for stock_exchange_name in exchange_list:
-        for stock_type in stock_type_list:
-            output = get_tickers(stock_exchange_name, stock_type)
-            if len(output) == 0:
-                logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
-            count = 0
-            for row in output:
-                result[row['ticker']] = exchange_key[row['primary_exchange']]
-                if 'type' in row:
-                    if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'],row['name'],row['type']):
-                        count += 1
-            if count > 0:
-                logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
-    return result
-
-
 def get_tickers_from_db(t_type):
     try:
         if db_connect:
@@ -169,9 +148,7 @@ if __name__ == '__main__':
                         filename=log_path + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
-    ticker_list = get_tickers_list()
-    if len(ticker_list) == 0:
-        ticker_list = get_tickers_from_db(stock_type_list[0])
+    ticker_list = get_tickers_from_db(stock_type_list[0])
 
     #logging.info('%d Tickers for getting data'%len(ticker_list))
 
