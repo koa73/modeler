@@ -99,6 +99,9 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s :  %(message)s',
                         filename=log_path + Path(__file__).stem + '.log',
                         level=logging.INFO)
-    db_connect = connect()
-    ticker_list = get_tickers_list()
+    try:
+        db_connect = connect()
+        ticker_list = get_tickers_list()
+    except Exception as ex:
+        logging.info("Unsuccessful complete by reason : "+str(ex))
 
