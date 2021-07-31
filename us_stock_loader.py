@@ -172,7 +172,7 @@ if __name__ == '__main__':
                         filename=log_path + Path(__file__).stem + '.log',
                         level=logging.INFO)
     db_connect = connect()
-    #ticker_list = get_tickers_list()
+    ticker_list = get_tickers_list()
     ticker_list = []
     if len(ticker_list) == 0:
         ticker_list = get_tickers_from_db(stock_type_list[0])
