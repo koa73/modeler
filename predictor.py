@@ -113,9 +113,10 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
             print("1 type %s" % type(symbol))
             print("2 type %s" % type(stock_exchange_name))
             print("3 type %s" % type(_date_rw))
-            print("4 type %s" % type(last_cost))
-            print("5 type %s" % type(str(_d_[0][1])))
-            print("6 type %s" % type(order_count))
+            print("4 type %s , %s" % (type(pwr), pwr))
+            print("5 type %s" % type(last_cost))
+            print("6 type %s" % type(str(_d_[0][1])))
+            print("7 type %s" % type(order_count))
 
             cursor.callproc('insert_into_adviser_log',
                             [symbol, stock_exchange_name, _date_rw, pwr, last_cost, str(_d_[0][1]), order_count])
