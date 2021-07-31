@@ -114,7 +114,7 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
                             [symbol, stock_exchange_name, date_rw, pwr, last_cost, str(_d_[0][1]), order_count])
 
             db_connect.commit()
-            return _d_[0], order_count
+            return _d_[0], order_count.getvalue()
 
     except cx_Oracle.Error as ex:
         logging.info('DB Error : ' + str(ex) + ', on query: ' + query)
