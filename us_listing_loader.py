@@ -44,7 +44,7 @@ def insert_to_dictionary(exchange, ticker, name, type):
             return True
     except cx_Oracle.Error as ex:
         return False
-        # logging.info('DB Error : '+str(ex))
+        logging.info('DB Error : '+str(ex))
 
 # Get all tickers hat meet the condition (type & exchange)
 def get_tickers(exchange_name, t_type):
@@ -91,7 +91,6 @@ def get_tickers_list():
                         count += 1
             if count > 0:
                 logging.info('Into dictionary ' + stock_exchange_name + ' was inserted %s rows' % count)
-    return result
 
 
 if __name__ == '__main__':
@@ -101,7 +100,7 @@ if __name__ == '__main__':
                         level=logging.INFO)
     try:
         db_connect = connect()
-        ticker_list = get_tickers_list()
+        get_tickers_list()
     except Exception as ex:
         logging.info("Unsuccessful complete by reason : "+str(ex))
 
