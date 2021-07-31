@@ -110,12 +110,8 @@ def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
             query = "call insert_into_adviser_log ('%s', '%s', '%s', %d, %f, %s, %s)" \
                     % (symbol, stock_exchange_name, _date_rw, pwr, last_cost, str(_d_[0][1]), order_count)
 
-            print(pwr)
-            print(query)
-
-
             cursor.callproc('insert_into_adviser_log',
-                            [symbol, stock_exchange_name, _date_rw, float(pwr), last_cost, str(_d_[0][1]), order_count])
+                            [symbol, stock_exchange_name, _date_rw, float(pwr), last_cost, _d_[0][1], order_count])
 
             db_connect.commit()
             return _d_[0], order_count.getvalue()
@@ -189,6 +185,7 @@ if __name__ == '__main__':
                 data_set['DOWN'] = sorted(data_set['DOWN'], key=lambda k: k['pwr'])
                 data_set['UP'] = sorted(data_set['UP'], key=lambda k: k['pwr'], reverse=True)
                 data["data"] = data_set
+                print(data)
                 send_data_to_bot(data)
 
         except Exception as ex:
