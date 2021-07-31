@@ -97,28 +97,24 @@ def get_check_data(json_row):
 
 def insert_signal_to_db(symbol, stock_exchange_name, date_rw, pwr, last_cost):
     query = ''
-    descr = [[]]
     try:
 
         query = "SELECT a.descr, a.type FROM " + stock_exchange_name + "_DICT a WHERE a.symbol = '%s'" % symbol
+        print(query)
         with db_connect.cursor() as cursor:
             cursor.execute(query)
-            descr = cursor.fetchall()
+            _d_ = cursor.fetchall()
+            input(_d_)
             order_count = cursor.var(int)
 
             cursor.callproc('insert_into_adviser_log',
-                            [symbol, stock_exchange_name, date_rw, pwr, last_cost, descr[0][1], order_count])
+                            [symbol, stock_exchange_name, date_rw, pwr, last_cost, _d_[0][1], order_count])
 
             db_connect.commit()
-            return descr[0], order_count
-
-
-    except FileNotFoundError:
-        logging.info("Can't insert : %s %s  %s  %d %f" % (symbol, stock_exchange_name, date_rw, pwr, last_cost) )
-        return [], 0
+            return _d_[0], order_count
 
     except cx_Oracle.Error as ex:
-        logging.info('DB Error : ' + str(ex) + query)
+        logging.info('DB Error : ' + str(ex) + ', on query: ' + query)
         return [], 0
 
 
@@ -130,7 +126,7 @@ def send_data_to_bot(d):
         logging.info('Data sent to bot successfuly. Status code : '+str(response.status_code))
         # Code here will only run if the request is successful
     except Exception as ex:
-        logging.info("Can't sent data to bot : " + ex)
+        logging.info("Can't sent data to bot : " + str(ex))
         exit(1)
 
 
