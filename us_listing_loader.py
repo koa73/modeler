@@ -82,15 +82,17 @@ def get_tickers_list():
                 logging.info("----- Error : " + stock_exchange_name + " didn't receive tickers ----")
 
             count = 0
+            type_count = 0
 
             for row in output:
                 result[row['ticker']] = exchange_key[row['primary_exchange']]
                 if 'type' in row:
+                    type_count +=1
                     if insert_to_dictionary(exchange_key[row['primary_exchange']], row['ticker'],row['name'],row['type']):
                         count += 1
 
             logging.info("Received for %s %s tickers of type %s, inserted to db : %s" %
-                             (stock_exchange_name, len(output), stock_type, count))
+                             (stock_exchange_name, type_count, stock_type, count))
 
 
 
