@@ -10,6 +10,8 @@ from datetime import datetime
 import numpy as np
 from shutil import copyfile
 from Binary import Binary
+from decimal import Decimal as D, ROUND_DOWN
+
 
 
 # Create list of file names uniq variants
@@ -27,16 +29,16 @@ def create_uniq_names(first, last, offset=0, step=0, pat='weights_b25_150_'):
                     continue
                 else:
                     d[str(sorted([a, b, c]))] = [pat + str(c), pat + str(b), pat + str(a)]
+
     arr = []
     idx = 0
-    size = offset + step
     for item in list(d.values()):
         idx += 1
         if idx <= offset:
             continue
-
         arr.append(item)
-        if (step > 0) and (idx == size):
+
+        if (idx == step + offset):
             break
     return arr
 
@@ -99,6 +101,8 @@ def get_combinations_name(file_prefix, first_elements, end_idx):
 
 class ModelMaker:
     __fileDir = os.path.dirname(os.path.abspath(__file__))
+    # Число знаков в расчетных значениях
+    __accuracy = '0.00001'
 
     def __init__(self, testPrefix='') -> None:
         super().__init__()
@@ -231,15 +235,14 @@ class ModelMaker:
         if need_archive:
             # k1- чувствительность, k2 - относительная ошибка
             #if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
-            #if (k1>2 and k2 < 17):
-
-            self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
-
+            if (k1 > 0.4 and k2 < 20):
+                self.__archive_model_data(up_ + abs(down), all_errors, k1, k2, model, comment)
         else:
-
             #if ((k1 > 3 and k2 < 11) or (k2 == 0 and up_ + abs(down) > 10)):
             #if (k1 > 2 and k2 < 17):
-            self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
+
+            if k1 > 0.75 and k2 == 0:
+                self.__write_log_file(up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2, model, comment, output_file_name)
 
         return up_ + abs(down), all_errors, "%.4f" % k1, "%.4f" % k2
 
@@ -266,12 +269,12 @@ class ModelMaker:
     def write_log_file(self, param, model, comment, log_name):
         self.__write_log_file(param[0], param[1], param[2], param[3], model, comment, log_name)
 
-
     def __write_log_file(self, hit, mistake, sensetive, error, about_models, additional_info, name="models"):
 
         date_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         output_dir = self.__fileDir + "/models/logs/"
         filename = output_dir + name + "_log.csv"
+        print(filename)
 
         write_log(filename, [date_time, hit, mistake, error, sensetive, about_models, additional_info])
 
@@ -309,3 +312,101 @@ class ModelMaker:
         except FileNotFoundError:
 
             print("Error can't write file")
+
+    # Вычисление изменения текущего значения относительно базового
+    def __change_percent(self, base, curr):
+
+        try:
+            return float(D((float(curr) - float(base)) / float(base)).quantize(D(self.__accuracy), rounding=ROUND_DOWN))
+
+        except ZeroDivisionError:
+            return 1
+
+    def __calc_last_date(self, check_data_a, open, last):
+        # Find carrier as a change of open in percentage
+        check_data_a[0][-1:] = [self.__change_percent(open, last)]
+        return np.asarray(check_data_a, dtype=np.float64)
+
+    def find_zone_border_buy(self, model, open, close, check_data_a):
+        result = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
+
+        if close < 1:
+            rv = 4
+        else:
+            rv = 2
+        step = 10 ** rv
+
+        l = close
+        y = 1000
+        print('------------------ Check UP ----------------------------------------')
+        while (l < (close * 1.5)):
+            check_data = self.__calc_last_date(check_data_a, open, l)
+            y_predicted = model.predict([check_data])[0]
+
+            if y > y_predicted[0]:
+                y = y_predicted[0]
+                result[int(y_predicted[0])] = l
+                print("Last value : " + str(l) + " ,  predict : " + str(y_predicted))
+
+            if y_predicted[0] == 0:
+                break
+            l = round((l + 1 / step), rv)
+
+        l = close
+        y = 0
+        print('------------------ Check DOWN ----------------------------------------')
+        while (l > (close * 0.5)):
+            check_data = self.__calc_last_date(check_data_a, open, l)
+            y_predicted = model.predict([check_data])[0]
+            if y < y_predicted[0]:
+                y = y_predicted[0]
+                result[int(y_predicted[0])] = l
+                print("Last value : " + str(l) + " ,  predict : " + str(y_predicted))
+
+            if y_predicted[0] == 15:
+                break
+            l = round((l - 1 / step), rv)
+
+        print(result)
+
+    def find_zone_border_sell(self, model, open, close, check_data_a):
+        result = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0,
+                  16: 0, 17: 0, 18: 0, 19: 9, 20: 0, 21: 0}
+
+        if close < 1:
+            rv = 4
+        else:
+            rv = 2
+        step = 10 ** rv
+
+        l = close
+        y = 0
+        print('------------------ Check UP ----------------------------------------')
+        while (l < (close * 1.5)):
+            check_data = self.__calc_last_date(check_data_a, open, l)
+            y_predicted = model.predict([check_data])[0]
+            if y < y_predicted[2]:
+                y = y_predicted[2]
+                result[int(y)] = l
+                print("Last value : " + str(l) + " ,  predict : " + str(y))
+
+            elif y > y_predicted[2]:
+                break
+            l = round((l + 1 / step), rv)
+
+        l = close
+        y = 1000
+        print('------------------ Check Down ----------------------------------------')
+        while (l > (close * 0.9)):
+            check_data = self.__calc_last_date(check_data_a, open, l)
+            y_predicted = model.predict([check_data])[0]
+            if y > y_predicted[2]:
+                y = y_predicted[2]
+                result[int(y)] = l
+                print("Last value : " + str(l) + " ,  predict : " + str(y))
+
+            if y_predicted[2] == 0:
+                break
+            l = round((l - 1 / step), rv)
+
+        print(result)

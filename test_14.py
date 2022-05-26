@@ -1,10 +1,11 @@
 import modelMaker as d
 from itertools import *
 
-arr = d.get_combinations_name('weights_b25_150_', [1], 30)
-print(arr)
+arr = d.get_combinations_name('weights_b25_150_', [0], 265)
+#print(arr)
 print(len(arr))
 
+'''
 arr = []
 for i in range(1, 101):
     arr.append(i)
@@ -19,3 +20,4 @@ for i in combinations(arr, 2):
 print(len(result))
 print(count)
 print(len(result)-count)
+'''

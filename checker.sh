@@ -20,9 +20,9 @@ printf "\r${3} : [${_fill// /#}${_empty// /-}] ${_progress}%%  Until the end app
 _start=0
 # This accounts as the "totalState" variable for the ProgressBar function
 # 147
-_end=16
+_end=3102
 # Butch size
-_step=10
+_step=1000
 
 if [ -f ./models/logs/checker_log.csv ]; then
    count_file=$(find ./models/logs/checker_* -type f |wc -l)
@@ -36,7 +36,9 @@ do
     start_time=`date +%s`
     # Put here your script
     #nice -19 python3 ./model_checker_batch.py ${_offset} ${_step} > /dev/null 2>&1
-    nice -19 python3 ./composit_model_maker.py ${_offset} ${_step} > /dev/null 2>&1
+    echo "\n"  ${_offset}  ${_step}
+    nice -19 python3 ./composit_model_L1.py ${_offset} ${_step} > /dev/null 2>&1
+
     end_time=`date +%s`
     runtime=$((end_time-start_time))
     let common_time=(${_end}-$number)*$runtime

@@ -17,9 +17,9 @@ source_path = '/models/archive/models/gpu_1/'
 comment_in_log = "DOWN complex leve 3 check zero"
 
 # Load test data
-X_down, y_down = data.get_check_data('test', 'DOWN_b38', '2D')
-X_up, y_up = data.get_check_data('test', 'UP_b38', '2D')
-X_none, y_none = data.get_check_data('test', 'NONE_b38', '2D')
+X_down, y_down = data.get_check_data('test', 'DOWN_b500_2395', '2D')
+X_up, y_up = data.get_check_data('test', 'UP_b500_2395', '2D')
+X_none, y_none = data.get_check_data('test', 'NONE_b500_2395', '2D')
 
 
 def check_models(file_list):

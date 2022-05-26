@@ -6,7 +6,8 @@ import modelMaker as d
 
 data = d.ModelMaker()
 
-source_path = '/models/archive/complex/best/'
+#source_path = '/models/archive/complex/best/'
+source_path = '/model/1/'
 comment_in_log = ""
 pattern_file_name = 'weights_b25_150_'
 output_log = "complex/best/check_complex"
@@ -21,7 +22,8 @@ for i in range(3, 4):
     #file_mame = pattern_file_name + '%02d' % (i,)
     file_mame = pattern_file_name + str(i)
     model = data.model_loader(file_mame, source_path)
-
+    print(model.summary())
+    exit(0)
     print(X_up)
     input([X_up])
 

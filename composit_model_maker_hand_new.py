@@ -5,28 +5,16 @@ import tensorflow as tf
 import modelMaker as d
 import Binary as b
 import uuid
-import sys
 
 data = d.ModelMaker()
 
 print("Start composite model making ....")
 
-model_base_name = "weights_b500_150_c1"
-#source_path = '/models/archive/models/gpu_1/'
-source_path = '/models/archive/models/b500_150_f/'
-model_archive_path = '/models/archive/complex/500_1/'
-out_log = "complex/500_1/checker"
-
-
-if (len(sys.argv) < 3):
-    print("Argument not found ")
-    exit(0)
-
-
-# Load test data
-X_down, y_down = data.get_check_data('test', 'DOWN_b500_2395', '2D')
-X_up, y_up = data.get_check_data('test', 'UP_b500_2395', '2D')
-X_none, y_none = data.get_check_data('test', 'NONE_b500_2395', '2D')
+model_base_name = "weights_b500_c"
+#source_path = '/models/archive/models/gpu/'
+source_path = '/models/archive/complex/5/'
+out_log = "complex/best/checker"
+model_archive_path = '/models/archive/complex/best/'
 
 # Сборка модели из листа, запись лога и сохранение моделей в dst каталог
 def model_complex_builder(file_list, prefix):
@@ -35,31 +23,38 @@ def model_complex_builder(file_list, prefix):
     for i in range(len(file_list)):
         # Load models
         model_tmp = data.model_loader(file_list[i], source_path)
-        model_tmp._name = "functional_0" + str(i)
+        model_tmp._name = unique_name()
+        # Rename weights
+        for i in range(len(model_tmp.weights)):
+            model_tmp.weights[i]._handle_name = postprocess_weight_name(model_tmp.weights[i].name)
+
         models.append(model_tmp)
 
     print("------------------- Build model----------")
     model_layers = []
-    input_layer_1 = tf.keras.layers.Input(shape=(24,), name=str(uuid.uuid4()))
+    input_layer_1 = tf.keras.layers.Input(shape=(24,))
     for i in range(len(models)):
         model_layers.append(models[i](input_layer_1))
-    output_b = tf.keras.layers.add(model_layers)
-    output = tf.keras.layers.Softmax()(output_b)
-    model = tf.keras.models.Model(inputs=input_layer_1, outputs=[output])
+    output = tf.keras.layers.add(model_layers)
+    #output = tf.keras.layers.Softmax()(output_b)
+    model = tf.keras.models.Model(inputs=input_layer_1, outputs=[output], name="complex_1")
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     #
     print(model.summary())
 
     data.save_conf(model, prefix, model_archive_path+model_base_name)  # Запись конфигурации
     model.save(data.get_file_dir() + model_archive_path + model_base_name + prefix + ".h5")
-    print("------------------- XXXX ----------")
-    # Get predict data
-    y_up_pred = model.predict([X_up])
-    y_none_pred = model.predict([X_none])
-    y_down_pred = model.predict([X_down])
 
-    print("------------------- Check model----------")
-    data.check_single_model(y_up_pred, y_none_pred, y_down_pred,  model, "Complex model 1 level. Big sensitive.",
+    # Load test data
+    X_down, y_down = data.get_check_data('test', 'DOWN_b38', '2D')
+    X_up, y_up = data.get_check_data('test', 'UP_b38', '2D')
+    X_none, y_none = data.get_check_data('test', 'NONE_b38', '2D')
+    # Get predict data
+    y_up_pred = model.predict([X_up, X_up, X_up])
+    y_none_pred = model.predict([X_none, X_none, X_none])
+    y_down_pred = model.predict([X_down, X_down, X_down])
+
+    data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 1 level. Big sensitive.",
                             False, out_log)
 
 # Модель с кастомным бинарным слоем
@@ -68,7 +63,7 @@ def model_complex_binary_builder(file_list, prefix):
     for i in range(len(file_list)):
         # Load models
         model_tmp = data.model_loader(file_list[i], source_path)
-        model_tmp._name = "functional_03" + str(i)
+        model_tmp._name = str(uuid.uuid4())
         models.append(model_tmp)
 
     print("------------------- Build model----------")
@@ -104,35 +99,14 @@ def model_complex_binary_builder(file_list, prefix):
     data.check_single_model(y_up_pred, y_none_pred, y_down_pred, file_list, "Complex model 2 level. Big sensitive.",
                             False, out_log)
 
-# список моделей для сборки
-'''
-array = d.create_uniq_names(1, 32, 5, 0)
 
-array = [['weights_b25_150_16', 'weights_b25_150_91', 'weights_b25_150_100'],
-         ['weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63'],
-         ['weights_b25_150_46', 'weights_b25_150_53', 'weights_b25_150_107']]
-         
-array = [['weights_b25_150_0', 'weights_b25_150_1', 'weights_b25_150_2']]         
-         
-array = [['weights_b25_150_16', 'weights_b25_150_91', 'weights_b25_150_100', 'weights_b25_150_0', 'weights_b25_150_62', 'weights_b25_150_63','weights_b25_150_46', 'weights_b25_150_53', 'weights_b25_150_107']]
-array = [['weights_b25_150_0', 'weights_b25_150_1', 'weights_b25_150_2']]
-'''
-start = int(sys.argv[1])
-end = int(sys.argv[2])
-if start > 0:
-    end = start + end
+def unique_name():
+    return uuid.uuid4().hex.upper()[0:10]
 
-#array = d.get_combinations_name('weights_b25_150_', [70,4,27,38,56,76,80,45,72,42,68,33,9,26,17,28,37,69,79,29,53], 82)[start:end]
-#array = d.get_combinations_name('weights_b25_150_', [10,19,22,16,28,20,29,12,15,9,11,24,25,26], 31)[start:end] # UP data from gpu_1
 
-array = d.create_uniq_names(0, 105, offset=start, step=end, pat='weights_b500_150_')
+def postprocess_weight_name(name):
+    group, name = name.split('/')
+    return f'{group}{unique_name()}/{name}'
 
-i = data.get_next_file_index(model_archive_path)
 
-for file_list in array:
-    try:
-        model_complex_builder(file_list, str(i))
-        #model_complex_binary_builder(file_list, str(i))
-        i += 1
-    except Exception:
-        pass
+model_complex_builder(['weights_b500_c2_up', 'weights_b500_c2_down'], '3')
